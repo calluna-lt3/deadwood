@@ -30,10 +30,10 @@ public class Player {
         this.name = name;
     }
 
-    public boolean requestRankUp(boolean currency, int rank) { }
-    public boolean requestMove(int room) { }
-    public boolean requestRole(int role) { }
-    public boolean requestAct() { }
-    public boolean requestRehearse() { }
+    public boolean requestRankUp(boolean currency, int rank)  { return false; }
+    public boolean requestMove(int room)  { return false; }
+    public boolean requestRole(int role)  { return false; }
+    public boolean requestAct()  { return false; }
+    public boolean requestRehearse()  { return false; }
     public void requestPassTurn() { }
 }
