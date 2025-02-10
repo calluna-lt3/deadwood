@@ -12,4 +12,16 @@ public class Role {
         this.rank = rank;
         this.starring = starring;
     }
+
+    public boolean getTaken() {
+        return taken;
+    }
+
+    public void setTaken(boolean val) {
+        taken = val;
+    }
+
+    public boolean getStarring() {
+        return starring;
+    }
 }
