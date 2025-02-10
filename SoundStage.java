@@ -7,11 +7,40 @@ public class SoundStage extends Room {
     }
 
     public Role getRole(int role) {
-        // check upper bound
         if (card == null) {
             return null;
         }
         
-        return (role > roles.length) ? 0/* Card role */ : 1/* Extra role */ ;
+        if (role > roles.length) {
+            if (role - roles.length > card.getRoleCount()) {
+                System.out.println("Requested role out of bounds");
+                return null;
+            }
+
+            return card.getRoles()[role - roles.length - 1];
+        } else {
+            if (role < 1) {
+                System.out.println("Requested role out of bounds");
+                return null;
+            }
+
+            return roles[role - 1];
+        }
+    }
+
+    public int getRoleCount() {
+        if (card == null) {
+            return 0;
+        }
+
+        return roles.length + card.getRoleCount();
+    }
+
+    public int getCardBudget() {
+        if (card == null) {
+            return 0;
+        }
+
+        return card.getBudget();
     }
 }
