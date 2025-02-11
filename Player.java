@@ -11,18 +11,6 @@ public class Player {
     String name;
     Role role;
 
-    Player(String name) {
-        myTurn = false;
-        money = 0;
-        credits = 0;
-        canMove = false;
-        rehearsalTokens = 0;
-        rank = 1;
-        currSpace = null;
-        this.name = name;
-        role = null;
-    }
-
     Player(String name, int credits, int rank) {
         myTurn = false;
         money = 0;
@@ -34,6 +22,17 @@ public class Player {
         this.name = name;
         role = null;
     }
+
+    public Room getRoom() { return currSpace; }
+    public void setRoom(Room room) { currSpace = room; }
+
+    public boolean getTurn() { return myTurn; }
+    public void setTurn(boolean turn) { myTurn = turn; }
+
+    public String getName() { return name; }
+    public int getCredits() { return credits; }
+    public int getMoney() { return money; }
+    public int getRank() { return rank; }
 
     // Money is false, credits is true
     public boolean requestRankUp(boolean currency, int rank)  {
@@ -120,8 +119,9 @@ public class Player {
         return true;
     }
 
+    // needs to update shot markers
     public boolean requestAct() {
-        Random rand = new Random();
+        Random rand = new Random(); // might need to get moved, hard to visualize from here
 
         if (rand.nextInt(6) + 1 < ((SoundStage) currSpace).getCardBudget()) {
             if (role.getStarring() == false) {

@@ -1,2 +1,2 @@
-public class XMLParser {
+public class InputController {
 }
