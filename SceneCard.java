@@ -1,13 +1,15 @@
+import java.util.ArrayList;
+
 public class SceneCard {
     String name;
     String description;
     int number;
     int budget;
-    Role[] roles;
+    ArrayList<Role> roles;
     boolean revealed;
 
 
-    SceneCard(String name, String description, int number, int budget, Role[] roles) {
+    SceneCard(String name, String description, int number, int budget, ArrayList<Role> roles) {
         this.name = name;
         this.description = description;
         this.number = number;
@@ -16,12 +18,12 @@ public class SceneCard {
         revealed = false;
     }
 
-    public Role[] getRoles() {
+    public ArrayList<Role> getRoles() {
         return roles;
     }
 
     public int getRoleCount() {
-        return roles.length;
+        return roles.size();
     }
 
     public int getBudget() {

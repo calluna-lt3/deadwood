@@ -1,17 +1,20 @@
+import java.util.ArrayList;
+
+
 public class Room {
     String name;
-    String[] adjacentRoomsStr;
-    Room[] adjacentRooms;
+    ArrayList<String> adjacentRoomsStr;
+    ArrayList<Room> adjacentRooms;
 
     public String getName() {
         return name;
     }
 
     public int getAdjacentCount() {
-        return adjacentRooms.length;
+        return adjacentRooms.size();
     }
 
-    public Room[] getAdjacentRooms() {
+    public ArrayList<Room> getAdjacentRooms() {
         return adjacentRooms;
     }
 }

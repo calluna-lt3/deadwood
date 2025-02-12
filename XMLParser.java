@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
@@ -7,10 +10,9 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import java.io.File;
+import java.sql.Array;
 
 public class XMLParser {
-    private static final int MAX_ROLES = 4;
-    private static final int MAX_ADJ_ROOMS = 4;
     private String boardPath;
     private String cardPath;
     private NodeList cardList;
@@ -47,9 +49,7 @@ public class XMLParser {
 
         // dont think this can throw exceptions
         cardList = cardRoot.getElementsByTagName("card");
-        roomList = boardRoot.getElementsByTagName("set");
-        //roomList = boardRoot.getChildNodes(); // introduces a ton of random text nodes
-        System.out.println(roomList.getLength());
+        roomList = boardRoot.getChildNodes(); // not all elements the same name
     }
 
 
@@ -73,15 +73,15 @@ public class XMLParser {
     //  any SoundStage's roles[] can have null values where there are less roles than MAX_ROLES
     //  any Room's adjacentRooms[] can have null values where there are less adj rooms than MAX_ADJ_ROOMS
     // TODO: dynamically allocate arrays to fix above
-    public Room[] getRooms() {
-        Room[] rooms = new Room[roomList.getLength()];
+    public ArrayList<Room> getRooms() {
+        ArrayList<Room> rooms = new ArrayList<Room>();
 
         // for each room
         for (int i=0; i<roomList.getLength(); i++) {
             Node room = roomList.item(i);
 
             if("set".equals(room.getNodeName())) {
-                rooms[i] = parseSet(room);
+                rooms.add(parseSet(room));
             }
 
             if("trailer".equals(room.getNodeName())) {
@@ -97,6 +97,7 @@ public class XMLParser {
     }
 
 
+
     // NOTE: any SceneCard's Role[] can have null values when there are less roles than MAX_ROLES
     // TODO: dynamically allocate array to fix above
     public SceneCard[] getSceneCards() {
@@ -105,7 +106,7 @@ public class XMLParser {
         // for each card
         for (int i=0; i<cardList.getLength(); i++) {
             Node card = cardList.item(i);
-            Role[] roles = new Role[MAX_ROLES]; // see above's todo
+            ArrayList<Role> roles = new ArrayList<Role>();
             String cardDescription = "";
             int cardNumber = 0;
 
@@ -113,7 +114,6 @@ public class XMLParser {
             String cardName = card.getAttributes().getNamedItem("name").getNodeValue();
             int cardBudget = Integer.parseInt(card.getAttributes().getNamedItem("budget").getNodeValue());
 
-            int roleCount = 0;
             NodeList cardChildren = card.getChildNodes();
             // for each subcategory of a card
             for (int j=0; j<cardChildren.getLength(); j++) {
@@ -127,8 +127,7 @@ public class XMLParser {
 
                 // gets role info
                 if("part".equals(cardSub.getNodeName())) {
-                    roles[roleCount] = parsePart(cardSub);
-                    roleCount++;
+                    roles.add(parsePart(cardSub));
                 }
             }
 
@@ -162,8 +161,8 @@ public class XMLParser {
     private SoundStage parseSet(Node set) {
         NodeList setChildren = set.getChildNodes();
 
-        String[] adjRooms = new String[MAX_ADJ_ROOMS];
-        Role[] roles = new Role[MAX_ROLES];
+        ArrayList<String> adjRooms = new ArrayList<String>();
+        ArrayList<Role> roles = new ArrayList<Role>();
         int shotMarkers = 0;
 
         String name = set.getAttributes().getNamedItem("name").getNodeValue();
@@ -173,25 +172,23 @@ public class XMLParser {
             Node setSub = setChildren.item(i);
 
             // get adjacent rooms
-            int adjRoomCount = 0;
             if("neighbors".equals(setSub.getNodeName())) {
-                String adjRoom = "";
                 NodeList neighborsChildren = setSub.getChildNodes();
 
                 for (int j=0; j<neighborsChildren.getLength(); j++) {
                     Node neighborsSub = neighborsChildren.item(j);
 
                     if ("neighbor".equals(neighborsSub.getNodeName())) {
-                        adjRoom = neighborsSub.getAttributes().getNamedItem("name").getNodeValue();
+                        adjRooms.add(neighborsSub.getAttributes().getNamedItem("name").getNodeValue());
                     }
                 }
-
-                adjRooms[adjRoomCount] = adjRoom;
-                adjRoomCount++;
             }
 
+
             // TODO: get area info
-            // get shotmarker count
+
+
+            // get shotmarkers
             if("takes".equals(setSub.getNodeName())) {
                 NodeList takesChildren = setSub.getChildNodes();
 
@@ -205,7 +202,6 @@ public class XMLParser {
             }
 
             // get roles
-            int roleCount = 0;
             if("parts".equals(setSub.getNodeName())) {
                 NodeList partsChildren = setSub.getChildNodes();
 
@@ -213,8 +209,7 @@ public class XMLParser {
                     Node partsSub = partsChildren.item(j);
 
                     if("part".equals(partsSub.getNodeName())) {
-                        roles[roleCount] = parsePart(partsSub);
-                        roleCount++;
+                        roles.add(parsePart(partsSub));
                     }
                 }
             }

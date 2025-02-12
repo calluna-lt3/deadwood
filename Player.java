@@ -1,4 +1,5 @@
 import java.util.Random;
+import java.util.ArrayList;
 
 public class Player {
     boolean myTurn;
@@ -91,7 +92,7 @@ public class Player {
             return false;
         }
 
-        currSpace = currSpace.getAdjacentRooms()[room - 1];
+        currSpace = currSpace.getAdjacentRooms().get(room - 1);
         return true;
     }
 

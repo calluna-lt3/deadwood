@@ -1,11 +1,13 @@
+import java.util.ArrayList;
+
 public class SoundStage extends Room {
     SceneCard card;
-    Role[] roles;
+    ArrayList<Role> roles;
     int maxShotMarkers; // needed for restarting day
     int shotMarkers;
 
 
-    public SoundStage(String name, String[] adjacentRoomsStr, Role[] roles, int shotMarkers) {
+    public SoundStage(String name, ArrayList<String> adjacentRoomsStr, ArrayList<Role> roles, int shotMarkers) {
         this.name = name;
         this.adjacentRoomsStr = adjacentRoomsStr;
         card = null;
@@ -30,20 +32,20 @@ public class SoundStage extends Room {
             return null;
         }
 
-        if (role > roles.length) {
-            if (role - roles.length > card.getRoleCount()) {
+        if (role > roles.size()) {
+            if (role - roles.size() > card.getRoleCount()) {
                 System.out.println("Requested role out of bounds");
                 return null;
             }
 
-            return card.getRoles()[role - roles.length - 1];
+            return card.getRoles().get(role - roles.size() - 1);
         } else {
             if (role < 1) {
                 System.out.println("Requested role out of bounds");
                 return null;
             }
 
-            return roles[role - 1];
+            return roles.get(role - 1);
         }
     }
 
@@ -52,7 +54,7 @@ public class SoundStage extends Room {
             return 0;
         }
 
-        return roles.length + card.getRoleCount();
+        return roles.size() + card.getRoleCount();
     }
 
     public int getCardBudget() {
