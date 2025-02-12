@@ -1,14 +1,14 @@
 public class Role {
     String name;
-    String description;
+    String line;
     int rank;
     boolean taken;
     boolean starring;
 
-    Role(String name, String desc, int rank, boolean starring) {
+    Role(String name, String line, int rank, boolean starring) {
         taken = false;
         this.name = name;
-        this.description = desc;
+        this.line = line;
         this.rank = rank;
         this.starring = starring;
     }

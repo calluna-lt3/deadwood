@@ -32,8 +32,7 @@ public class Moderator {
 
 
     private void initializeGame() {
-        XMLParser parser = new XMLParser();
-        parser.parse();
+        XMLParser xmlp = new XMLParser();
 
         // TODO: assign all data here (probably in differnet method)
         //  -> deck -> shuffle

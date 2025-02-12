@@ -1,11 +1,18 @@
 public class SceneCard {
     String name;
     String description;
+    int number;
     int budget;
-    boolean revealed;
     Role[] roles;
+    boolean revealed;
 
-    SceneCard() {
+
+    SceneCard(String name, String description, int number, int budget, Role[] roles) {
+        this.name = name;
+        this.description = description;
+        this.number = number;
+        this.budget = budget;
+        this.roles = roles;
         revealed = false;
     }
 
