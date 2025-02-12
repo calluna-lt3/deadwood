@@ -48,26 +48,52 @@ public class XMLParser {
         // dont think this can throw exceptions
         cardList = cardRoot.getElementsByTagName("card");
         roomList = boardRoot.getElementsByTagName("set");
+        //roomList = boardRoot.getChildNodes(); // introduces a ton of random text nodes
         System.out.println(roomList.getLength());
     }
 
 
-    private Role parsePart(Node part) {
-        String roleLine = "";
-        String roleName = part.getAttributes().getNamedItem("name").getNodeValue();
-        int roleLevel = Integer.parseInt(part.getAttributes().getNamedItem("level").getNodeValue());
+    private Document getDoc(String filename) throws ParserConfigurationException {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document doc = null;
 
-        // TODO: get area info
-        NodeList partChildren = part.getChildNodes();
-        for (int k=0; k<partChildren.getLength(); k++) {
-            Node roleSub = partChildren.item(k);
+        try {
+            doc = db.parse(filename);
+        } catch (Exception ex) {
+            System.out.println("ERROR: XML parse failure");
+            ex.printStackTrace();
+            System.exit(1);
+        }
+        return doc;
+    }
 
-            if ("line".equals(roleSub.getNodeName())) {
-                roleLine = roleSub.getTextContent();
+
+    // NOTE:
+    //  any SoundStage's roles[] can have null values where there are less roles than MAX_ROLES
+    //  any Room's adjacentRooms[] can have null values where there are less adj rooms than MAX_ADJ_ROOMS
+    // TODO: dynamically allocate arrays to fix above
+    public Room[] getRooms() {
+        Room[] rooms = new Room[roomList.getLength()];
+
+        // for each room
+        for (int i=0; i<roomList.getLength(); i++) {
+            Node room = roomList.item(i);
+
+            if("set".equals(room.getNodeName())) {
+                rooms[i] = parseSet(room);
+            }
+
+            if("trailer".equals(room.getNodeName())) {
+                // TODO: implement
+            }
+
+            if("office".equals(room.getNodeName())) {
+                // TODO: implement
             }
         }
 
-        return new Role(roleName, roleLine, roleLevel, true);
+        return rooms;
     }
 
 
@@ -110,6 +136,25 @@ public class XMLParser {
         }
 
         return cards;
+    }
+
+
+    private Role parsePart(Node part) {
+        String roleLine = "";
+        String roleName = part.getAttributes().getNamedItem("name").getNodeValue();
+        int roleLevel = Integer.parseInt(part.getAttributes().getNamedItem("level").getNodeValue());
+
+        // TODO: get area info
+        NodeList partChildren = part.getChildNodes();
+        for (int k=0; k<partChildren.getLength(); k++) {
+            Node roleSub = partChildren.item(k);
+
+            if ("line".equals(roleSub.getNodeName())) {
+                roleLine = roleSub.getTextContent();
+            }
+        }
+
+        return new Role(roleName, roleLine, roleLevel, true);
     }
 
 
@@ -179,48 +224,8 @@ public class XMLParser {
     }
 
 
-    // NOTE:
-    //  any SoundStage's roles[] can have null values where there are less roles than MAX_ROLES
-    //  any Room's adjacentRooms[] can have null values where there are less adj rooms than MAX_ADJ_ROOMS
-    // TODO: dynamically allocate arrays to fix above
-    public Room[] getRooms() {
-        Room[] rooms = new Room[roomList.getLength()];
-
-        // for each room
-        for (int i=0; i<roomList.getLength(); i++) {
-            Node room = roomList.item(i);
-
-            if("set".equals(room.getNodeName())) {
-                rooms[i] = parseSet(room);
-            }
-
-            if("trailer".equals(room.getNodeName())) {
-                // TODO: implement
-            }
-
-            if("office".equals(room.getNodeName())) {
-                // TODO: implement
-            }
-        }
-
-        return rooms;
-    }
 
 
-    private Document getDoc(String filename) throws ParserConfigurationException {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        Document doc = null;
-
-        try {
-            doc = db.parse(filename);
-        } catch (Exception ex) {
-            System.out.println("ERROR: XML parse failure");
-            ex.printStackTrace();
-            System.exit(1);
-        }
-        return doc;
-    }
 
 
 }
