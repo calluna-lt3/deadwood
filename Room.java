@@ -1,7 +1,8 @@
 public class Room {
     String name;
+    String[] adjacentRoomsStr;
     Room[] adjacentRooms;
-    
+
     public String getName() {
         return name;
     }

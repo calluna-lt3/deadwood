@@ -1,24 +1,28 @@
 public class SoundStage extends Room {
-    private SceneCard card;
-    private Role[] roles;
-    private int maxShotMarkers; // needed for restarting day
-    private int curShotMarkers;
+    SceneCard card;
+    Role[] roles;
+    int maxShotMarkers; // needed for restarting day
+    int shotMarkers;
 
-    public SoundStage(int shotMarkers) {
+
+    public SoundStage(String name, String[] adjacentRoomsStr, Role[] roles, int shotMarkers) {
+        this.name = name;
+        this.adjacentRoomsStr = adjacentRoomsStr;
         card = null;
+        this.roles = roles;
+        this.shotMarkers = shotMarkers;
         maxShotMarkers = shotMarkers;
-        curShotMarkers = shotMarkers;
     }
 
-    public int getShotMarkers() { return curShotMarkers; }
-    public void setShotMarkers(int shotMarkers) { curShotMarkers = shotMarkers; }
+    public int getShotMarkers() { return shotMarkers; }
+    public void setShotMarkers(int shotMarkers) { this.shotMarkers = shotMarkers; }
     public int getMaxShotMarkers() { return maxShotMarkers; }
 
     // returns true if scene is finished, false if not
     //      method that calls this should handle cleanup of this soundstage
     public boolean decShotMarkers() { // TODO: probably needs better method name
-        curShotMarkers--;
-        return (curShotMarkers == 0) ? true : false;
+        shotMarkers--;
+        return (shotMarkers == 0) ? true : false;
     }
 
     public Role getRole(int role) {
