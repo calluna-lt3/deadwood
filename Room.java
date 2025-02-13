@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 
-public class Room {
+public abstract class Room {
     String name;
     ArrayList<String> adjacentRoomsStr;
     ArrayList<Room> adjacentRooms;

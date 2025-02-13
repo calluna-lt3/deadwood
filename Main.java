@@ -3,7 +3,7 @@ import java.util.ArrayList;
 public class Main {
     public static void main(String[] args) {
         XMLParser xmlp = new XMLParser();
-        SceneCard[] cards = xmlp.getSceneCards();
+        ArrayList<SceneCard> cards = xmlp.getSceneCards();
         for (SceneCard card : cards) {
             System.out.println("name: " + card.name);
             System.out.println("\tdescription: " + card.description);
@@ -21,14 +21,15 @@ public class Main {
 
         ArrayList<Room> rooms = xmlp.getRooms();
         for (Room room : rooms) {
-            SoundStage ss = (SoundStage)room;
-            System.out.println("name: " + ss.name);
-            System.out.println("  shotMarkers: " + ss.shotMarkers);
-
+            System.out.println("name: " + room.name);
             System.out.println("  Adjacent Rooms: ");
-            for (String adjRoom : ss.adjacentRoomsStr) {
+            for (String adjRoom : room.adjacentRoomsStr) {
                 System.out.println("    " + adjRoom);
             }
+
+            if (room instanceof InertRoom) continue;
+            SoundStage ss = (SoundStage)room;
+            System.out.println("  shotMarkers: " + ss.shotMarkers);
 
             System.out.println("  roles: ");
             for (Role role : ss.roles) {
