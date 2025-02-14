@@ -64,17 +64,16 @@ public class Player {
                 System.out.println("Not enough credits for chosen rank.");
                 return false;
             }
-            System.out.println(String.format("Upgraded to rank %d\n", rank));
             credits -= credit_vals[rank - 2];
         } else {
             if (money_vals[rank - 2] > money) {
-                System.out.println("Not enough credits for chosen rank.");
+                System.out.println("Not enough money for chosen rank.");
                 return false;
             }
-            System.out.println(String.format("Upgraded to rank %d\n", rank));
             money -= money_vals[rank - 2];
         }
 
+        this.rank = rank;
         System.out.println(String.format("Upgraded to rank %d\n", rank));
         return true;
     }

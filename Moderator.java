@@ -18,6 +18,13 @@ public class Moderator {
         turn = 0;
     }
 
+    public String getCurrentPlayerName() {
+        return players[turn].getName();
+    }
+
+    public int getPlayerCount() {
+        return playerCount;
+    }
 
     // main game loop
     public void run() {
@@ -29,7 +36,6 @@ public class Moderator {
         }
         endGame();
     }
-
 
     private void initializeGame() {
         XMLParser xmlp = new XMLParser();
