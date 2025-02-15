@@ -34,6 +34,7 @@ public class Player {
     public int getCredits() { return credits; }
     public int getMoney() { return money; }
     public int getRank() { return rank; }
+    public Role getRole() {return role; }
 
     // Money is false, credits is true
     public boolean requestRankUp(boolean currency, int rank)  {

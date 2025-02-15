@@ -13,15 +13,13 @@ public class Role {
         this.starring = starring;
     }
 
-    public boolean getTaken() {
-        return taken;
-    }
+    public String getName() { return name; }
+    public String getLine() { return line; }
+    public int getRank() { return rank; }
+    public boolean getTaken() { return taken; }
+    public boolean getStarring() { return starring; }
 
-    public void setTaken(boolean val) {
-        taken = val;
-    }
 
-    public boolean getStarring() {
-        return starring;
-    }
+    public void setTaken(boolean val) { taken = val; }
+
 }
