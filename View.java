@@ -6,15 +6,15 @@ public interface View {
     public void displayRole();
 
     // Infallible actions
-    public void endGame();
-    public void passTurn();
+    public void displayEndGame();
+    public void displayPassTurn();
 
     // Fallible actions (return 0 on success, non-zero code on fail)
-    public int takeRole(int role);
-    public int move(int room);
-    public int upgrade(boolean currency, int rank);
-    public boolean rehearse();
+    public int displayTakeRole(int role);
+    public int displayMove(int room);
+    public int displayUpgrade(boolean currency, int rank);
+    public boolean displayRehearse();
 
     // Stochastic actions (return the result of a dice check)
-    public int act();
+    public boolean displayAct();
 }

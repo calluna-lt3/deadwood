@@ -10,119 +10,37 @@ public class Moderator {
     int lastDay;
 
 
-    Moderator() {
+    Moderator(int playerCount) {
         board = new Board();
-        playerCount = 0;
+        this.playerCount = playerCount;
         day = 0;
         lastDay = 4;
         turn = 0;
+        players = new Player[playerCount];
     }
 
+    public int getDay() {return day; }
+    public int getLastDay() {return lastDay; }
+    public int getTurn() {return turn; }
+    public int getPlayerCount() {return playerCount; }
+    public Player[] getPlayers() {return players; }
+    public Player getCurrentPlayer() {
+        return players[turn];
+    }
     public String getCurrentPlayerName() {
         return players[turn].getName();
     }
 
-    public int getPlayerCount() {
-        return playerCount;
-    }
+    public void setTurn(int turn) {this.turn = turn % playerCount; }
+    public void setLastDay(int day) {this.lastDay = day; }
+    public void setPlayer(int ix, Player p) {players[ix] = p; };
+    public void setDay(int day) {this.day = day; }
 
-    // main game loop
-    public void run() {
-        initializeGame();
-        while (day <= lastDay) {
-            startDay();
-            startNextTurn();
-            endDay();
-        }
-        endGame();
-    }
-
-    private void initializeGame() {
-        XMLParser xmlp = new XMLParser();
-
-        // TODO: assign all data here (probably in differnet method)
-        //  -> deck -> shuffle
-        //  -> board -> adjacency
-
-        // TODO: call controller to get playercount, valid range: [2,8]
-        Random rand = new Random();
-        turn = rand.nextInt(playerCount);
-
-        int startCredits = 1;
-        int startRank = 1;
-        switch (playerCount) {
-            case 2: case 3:
-                lastDay = 3;
-                break;
-            case 5:
-                startCredits = 2;
-                break;
-            case 6:
-                startCredits = 4;
-                break;
-            case 7: case 8:
-                startRank = 2;
-                break;
-            default:
-                break;
-        }
-
-        for (int i=0; i<playerCount; i++) {
-            // TODO: call controller to get name
-            players[i] = new Player("TEMP", startCredits, startRank);
-        }
-    }
-
-
-    private void assignScenes() {
+    public void assignScenes() {
         // TODO: finish once xml parser is done
     }
 
-    private void startDay() {
-        day++;
-        for (Player p : players) p.setRoom(null); // TODO: set to trailers
-        assignScenes();
-    }
-
-
-    private void endDay() {
+    public void endDay() {
         board.resetShotMarkers();
-    }
-
-
-    private void startNextTurn() {
-        players[turn].myTurn = true;
-
-        // TODO: call controller to start turn
-
-        turn++;
-    }
-
-
-    // calculate scores, determines winner, etc.
-    private void endGame() {
-        String[] winners = new String[0];
-        int winnerIndex = 0;
-        int highestScore = 0;
-
-        for (Player p : players) {
-            int score = 0;
-            score += p.getCredits();
-            score += p.getMoney();
-            score += (5 * p.getRank());
-
-            if (score > highestScore) {
-                highestScore = score;
-                winnerIndex = 0;
-                winners = new String[0];
-                winners[winnerIndex] = p.getName();
-            } else if (score == highestScore) {
-                winnerIndex++;
-                winners[winnerIndex] = p.getName();
-            }
-        }
-
-        // TODO: call controller to display winners
-
     }
 }
