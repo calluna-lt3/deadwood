@@ -17,4 +17,8 @@ public abstract class Room {
     public ArrayList<Room> getAdjacentRooms() {
         return adjacentRooms;
     }
+
+    public ArrayList<String> getAdjStrings() {
+        return adjacentRoomsStr;
+    }
 }

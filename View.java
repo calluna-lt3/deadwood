@@ -1,4 +1,7 @@
 public interface View {
+    public void displayInit();
+    public void getUserInput();
+
     // Display information
     public void displayHelp();
     public void displayWho();

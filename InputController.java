@@ -173,13 +173,11 @@ public class InputController {
     }
 
     private void initializeGame() {
-        XMLParser xmlp = new XMLParser();
-
-        // TODO: assign all data here (probably in differnet method)
-        //  -> deck -> shuffle
-        //  -> board -> adjacency
 
         // TODO: call controller to get playercount, valid range: [2,8]
+        v.displayInit();
+        // TODO Get player count
+
         Random rand = new Random();
         mod.setTurn(rand.nextInt(mod.getPlayerCount()));
 
@@ -210,7 +208,15 @@ public class InputController {
 
     private void startDay() {
         mod.setDay(mod.getDay() + 1);
-        for (Player p : mod.getPlayers()) p.setRoom(null); // TODO: set to trailers
+
+        Room trailer = null;
+        for (Room r : mod.getBoard().getRooms()) {
+            if (r.getName().equals("trailer")) {
+                trailer = r;
+                break;
+            }
+        }
+        for (Player p : mod.getPlayers()) p.setRoom(trailer);
         mod.assignScenes();
     }
 

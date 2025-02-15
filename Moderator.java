@@ -1,5 +1,5 @@
 import java.util.Random;
-
+import java.util.ArrayList;
 
 public class Moderator {
     Player[] players;
@@ -8,6 +8,7 @@ public class Moderator {
     int turn;
     int day;
     int lastDay;
+    Deck deck;
 
 
     Moderator(int playerCount) {
@@ -17,6 +18,7 @@ public class Moderator {
         lastDay = 4;
         turn = 0;
         players = new Player[playerCount];
+        deck = new Deck();
     }
 
     public int getDay() {return day; }
@@ -30,6 +32,9 @@ public class Moderator {
     public String getCurrentPlayerName() {
         return players[turn].getName();
     }
+    public Board getBoard() {
+        return board;
+    }
 
     public void setTurn(int turn) {this.turn = turn % playerCount; }
     public void setLastDay(int day) {this.lastDay = day; }
@@ -42,5 +47,19 @@ public class Moderator {
 
     public void endDay() {
         board.resetShotMarkers();
+    }
+
+    public void calculateAdjacency() {
+        for (Room r : board.getRooms()) {
+            ArrayList<Room> adj = r.getAdjacentRooms();
+
+            for (String s : r.getAdjStrings()) {
+                for (Room r2 : board.getRooms()) {
+                    if (s.equals(r2.getName())) {
+                        adj.add(r2);
+                    }
+                }
+            }
+        }
     }
 }

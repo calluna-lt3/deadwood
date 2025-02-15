@@ -1,5 +1,16 @@
+import java.util.ArrayList;
+
 public class Board {
-    Room[] rooms;
+    ArrayList<Room> rooms;
+
+    public Board() {
+        XMLParser xmlp = new XMLParser();
+        rooms = xmlp.getRooms();
+    }
+
+    public ArrayList<Room> getRooms() {
+        return rooms;
+    }
 
     public void resetShotMarkers() {
         for (Room room : rooms) {
@@ -8,6 +19,4 @@ public class Board {
             }
         }
     }
-
-    private void calculateAdjacency() {}
 }

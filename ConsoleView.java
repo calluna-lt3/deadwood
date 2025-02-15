@@ -26,6 +26,11 @@ public class ConsoleView {
         return input;
     }
 
+    public void displayInit() {
+        System.out.println("Welcome to Deadwood!"
+            + "Enter a number of players");
+    }
+
     // Display information
     public void displayHelp() {
         System.out.println("Available actions:"

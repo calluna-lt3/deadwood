@@ -222,7 +222,7 @@ public class XMLParser {
     // TODO: parse upgrades
     private Room parseOffice(Node office) {
         ArrayList<String> adjRooms = new ArrayList<String>(0);
-        final String name = "Casting Office";
+        final String name = "office";
 
         NodeList officeChildren = office.getChildNodes();
         for (int i=0; i<officeChildren.getLength(); i++) {
@@ -241,7 +241,7 @@ public class XMLParser {
     // TODO: parse area
     private Room parseTrailer(Node trailer) {
         ArrayList<String> adjRooms = new ArrayList<String>(0);
-        final String name = "Trailers";
+        final String name = "trailer";
 
         NodeList trailerChildren = trailer.getChildNodes();
         for (int i=0; i<trailerChildren.getLength(); i++) {
