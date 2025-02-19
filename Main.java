@@ -2,6 +2,10 @@ import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
+        System.out.println("hii");
+    }
+
+    public void testParser() {
         XMLParser xmlp = new XMLParser();
         ArrayList<SceneCard> cards = xmlp.getSceneCards();
         for (SceneCard card : cards) {
@@ -39,5 +43,6 @@ public class Main {
                 System.out.println("");
             }
         }
+
     }
 }
