@@ -4,26 +4,90 @@ public class ConsoleView {
     InputController inCtrl;
     Scanner sc;
 
-    static enum Errno {
-        BAD_ROLE,
-        NO_CREDITS,
-        NO_MONEY,
-        MAX_RANK,
-        OOB,
-        LEQ,
-        IN_ROLE,
-        CANT_MOVE,
-        BAD_ROOM,
-    }
-
-    public ConsoleView() {
+    public ConsoleView(InputController inCtrl) {
         sc = new Scanner(System.in);
+        this.inCtrl = inCtrl;
     }
 
-    public String getUserInput() {
+    public InVec getUserInput() {
         System.out.print("> ");
         String input = sc.nextLine();
-        return input;
+        String[] input_tokens = input.split(" ", 1);
+        Enums.action action = Enums.action.UNKNOWN;
+
+        while (action == Enums.action.UNKNOWN) {
+            if ("who".equals(input_tokens[0])) {
+                if (input_tokens.length != 1) {
+                    // TODO
+                } else {
+                    action = Enums.action.WHO;
+                }
+            } else if ("loc".equals(input_tokens[0])) {
+                if (input_tokens.length != 1) {
+                    // TODO
+                } else {
+                    action = Enums.action.LOCATION;
+                }
+            } else if ("roles".equals(input_tokens[0])) {
+                if (input_tokens.length != 1) {
+                    // TODO
+                } else {
+                    action = Enums.action.ROLES;
+                }
+            } else if ("takerole".equals(input_tokens[0])) {
+                if (input_tokens.length != 2) {
+                    // TODO
+                } else {
+                    action = Enums.action.TAKE_ROLE;
+                }
+            } else if ("move".equals(input_tokens[0])) {
+                if (input_tokens.length != 2) {
+                    // TODO
+                } else {
+                    action = Enums.action.MOVE;
+                }
+            } else if ("upgrade".equals(input_tokens[0])) {
+                input_tokens = input.split(" ");
+                if (input_tokens.length != 3) {
+                    // TODO
+                } else {
+                    action = Enums.action.UPGRADE;
+                }
+            } else if ("act".equals(input_tokens[0])) {
+                if (input_tokens.length != 1) {
+                    // TODO
+                } else {
+                    action = Enums.action.ACT;
+                }
+            } else if ("rehearse".equals(input_tokens[0])) {
+                if (input_tokens.length != 1) {
+                    // TODO
+                } else {
+                    action = Enums.action.REHEARSE;
+                }
+            } else if ("pass".equals(input_tokens[0])) {
+                if (input_tokens.length != 1) {
+                    // TODO
+                } else {
+                    action = Enums.action.PASS;
+                }
+            }
+        }
+
+        // Assumes valid length
+        InVec vec = null;
+        switch (input_tokens.length) {
+            case 1:
+            vec = new InVec(action, null, null);
+            break;
+            case 2:
+            vec = new InVec(action, input_tokens[1], null);
+            break;
+            case 3:
+            vec = new InVec(action, input_tokens[2], input_tokens[2]);
+        }
+
+        return vec;
     }
 
     public void displayInit() {
@@ -68,7 +132,7 @@ public class ConsoleView {
         }
     }
 
-    public void displayRoles(SoundStage ss) {
+    public void displayRole(SoundStage ss) {
         System.out.println("Roles:");
 
         int numRoles = ss.getRoleCount();
@@ -101,7 +165,7 @@ public class ConsoleView {
     }
 
 
-    public void displayTakeRole(Errno errno) {
+    public void displayTakeRole(Enums.errno errno) {
         switch (errno) {
             case BAD_ROLE:
                 System.out.println("Role does not exist");
@@ -127,13 +191,17 @@ public class ConsoleView {
         }
     }
 
+    public void displayRole(Enums.errno errno) {
 
-    public void displayMove(Errno errno) {
+    }
+
+
+    public void displayMove(Enums.errno errno) {
         switch (errno) {
             case BAD_ROOM:
                 System.out.println("Room isn't available");
                 break;
-            case CANT_MOVE:
+            case FORBIDDEN_ACTION:
                 System.out.println("You can't move");
                 break;
             default:
@@ -145,7 +213,7 @@ public class ConsoleView {
         System.out.println("Upgraded to rank " + Integer.toString(rank));
     }
 
-    public void displayUpgrade(Errno errno) {
+    public void displayUpgrade(Enums.errno errno) {
         switch (errno) {
             case NO_CREDITS:
                 System.out.println("Not enough credits");

@@ -1,6 +1,3 @@
-import java.util.Random;
-import java.util.ArrayList;
-
 public class Moderator {
     Player[] players;
     Board board;
@@ -40,26 +37,4 @@ public class Moderator {
     public void setLastDay(int day) {this.lastDay = day; }
     public void setPlayer(int ix, Player p) {players[ix] = p; };
     public void setDay(int day) {this.day = day; }
-
-    public void assignScenes() {
-        // TODO: finish once xml parser is done
-    }
-
-    public void endDay() {
-        board.resetShotMarkers();
-    }
-
-    public void calculateAdjacency() {
-        for (Room r : board.getRooms()) {
-            ArrayList<Room> adj = r.getAdjacentRooms();
-
-            for (String s : r.getAdjStrings()) {
-                for (Room r2 : board.getRooms()) {
-                    if (s.equals(r2.getName())) {
-                        adj.add(r2);
-                    }
-                }
-            }
-        }
-    }
 }

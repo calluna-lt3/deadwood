@@ -20,6 +20,10 @@ public class SoundStage extends Room {
     public void setShotMarkers(int shotMarkers) { this.shotMarkers = shotMarkers; }
     public int getMaxShotMarkers() { return maxShotMarkers; }
 
+    public void setCard(SceneCard c) {
+        this.card = c;
+    }
+    
     // returns true if scene is finished, false if not
     //      method that calls this should handle cleanup of this soundstage
     public boolean decShotMarkers() { // TODO: probably needs better method name

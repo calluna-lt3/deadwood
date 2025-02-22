@@ -1,12 +1,15 @@
 import java.util.ArrayList;
 import java.util.Random;
 
+import javax.management.RuntimeErrorException;
+
 public class InputController {
     View v;
     Moderator mod;
 
-    InputController(Moderator mod) {
+    InputController(Moderator mod, View v) {
         this.mod = mod;
+        this.v = v;
     }
 
     // Used by View.displayWho()
@@ -160,16 +163,57 @@ public class InputController {
         while (mod.getDay() <= mod.getLastDay()) {
             startDay();
             while (mod.getTurn() < mod.getPlayerCount()) {
-                queryView();
+                takeTurn();
                 mod.setTurn(mod.getTurn() + 1);
             }
-            mod.endDay();
+            endDay();
         }
         endGame();
     }
 
-    private void queryView() {
-        // view.getUserInput();
+    private void takeTurn() {
+        InVec args = v.getUserInput();
+        Enums.action action = args.action();
+        String arg1 = args.arg1();
+        String arg2 = args.arg2();
+
+        switch (action) {
+            case WHO:
+                v.displayWho(mod.getCurrentPlayer());
+            break;
+            case LOCATION:
+                v.displayLocations(mod.getCurrentPlayer(), mod.getPlayers());
+            break;
+            case ROLES:
+                if (mod.getCurrentPlayer().getRoom() instanceof InertRoom) {
+                    v.displayRole(Enums.errno.BAD_ROOM);
+
+                } else {
+                    v.displayRole((SoundStage) mod.getCurrentPlayer().getRoom());
+                }
+            break;
+            case TAKE_ROLE:
+                
+            break;
+            case MOVE:
+
+            break;
+            case UPGRADE:
+
+            break;
+            case ACT:
+
+            break;
+            case REHEARSE:
+
+            break;
+            case PASS:
+
+            break;
+            default:
+            System.exit(1);
+            break;
+        }
     }
 
     private void initializeGame() {
@@ -217,7 +261,20 @@ public class InputController {
             }
         }
         for (Player p : mod.getPlayers()) p.setRoom(trailer);
-        mod.assignScenes();
+        assignScenes();
+    }
+
+    public void assignScenes() {
+        for (Room r : mod.board.getRooms()) {
+            if (r instanceof InertRoom) {
+                continue;
+            }
+            ((SoundStage) r).setCard(mod.deck.draw());
+        }
+    }
+
+    public void endDay() {
+        mod.board.resetShotMarkers();
     }
 
     // calculate scores, determines winner, etc.

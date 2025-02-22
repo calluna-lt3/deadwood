@@ -1,0 +1,1 @@
+public record InVec(Enums.action action, String arg1, String arg2) {}
