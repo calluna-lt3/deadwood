@@ -12,28 +12,13 @@ Run: `make run`
 
 ## TODO
 
-Main.java  
+`Main.java`  
 - initialize game  
 
-ConsoleView.java  
+`ConsoleView.java`  
 - displayRehearse  
 - displayAct  
 
-InputController.java  
+`InputController.java`  
 - parse user input to call correct methods (e.g. player count, rehearse, etc)  
 - connect to view  
-
-UI.java: REMOVE  
-
-Mostly finished:  
-- Board.java  
-- Deck.java  
-- InertRoom.java  
-- Role.java  
-- Room.java  
-- SceneCard.java  
-- SoundStage.java  
-- View.java  
-- XMLParser.java  
-- Player.java  
-- Moderator.java  
