@@ -23,7 +23,7 @@ public class Board {
 
     private void calculateAdjacency() {
         for (Room r : rooms) {
-            ArrayList<Room> adj = r.getAdjacentRooms();
+            ArrayList<Room> adj = new ArrayList<Room>();
 
             for (String s : r.getAdjStrings()) {
                 for (Room r2 : rooms) {
@@ -32,6 +32,8 @@ public class Board {
                     }
                 }
             }
+
+            r.setAdjacentRooms(adj);
         }
     }
 }

@@ -26,7 +26,7 @@ public class SoundStage extends Room {
     
     // returns true if scene is finished, false if not
     //      method that calls this should handle cleanup of this soundstage
-    public boolean decShotMarkers() { // TODO: probably needs better method name
+    public boolean decrementShotMarkers() { // TODO: probably needs better method name
         shotMarkers--;
         return (shotMarkers == 0) ? true : false;
     }
@@ -38,14 +38,14 @@ public class SoundStage extends Room {
 
         if (role > roles.size()) {
             if (role - roles.size() > card.getRoleCount()) {
-                System.out.println("Requested role out of bounds");
+                // System.out.println("Requested role out of bounds");
                 return null;
             }
 
             return card.getRoles().get(role - roles.size() - 1);
         } else {
             if (role < 1) {
-                System.out.println("Requested role out of bounds");
+                // System.out.println("Requested role out of bounds");
                 return null;
             }
 

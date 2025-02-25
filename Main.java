@@ -2,10 +2,12 @@ import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("hii");
+        ConsoleView v = new ConsoleView();
+        InputController ctrl = new InputController(v);
+        ctrl.run();
     }
 
-    public void testParser() {
+    public static void testParser() {
         XMLParser xmlp = new XMLParser();
         ArrayList<SceneCard> cards = xmlp.getSceneCards();
         for (SceneCard card : cards) {

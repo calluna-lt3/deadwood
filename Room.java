@@ -21,4 +21,8 @@ public abstract class Room {
     public ArrayList<String> getAdjStrings() {
         return adjacentRoomsStr;
     }
+
+    public void setAdjacentRooms(ArrayList<Room> arrList) {
+        adjacentRooms = arrList;
+    }
 }

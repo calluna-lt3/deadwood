@@ -1,85 +1,72 @@
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Random;
-
-import javax.management.RuntimeErrorException;
 
 public class InputController {
     View v;
     Moderator mod;
+    boolean canMove;
 
-    InputController(Moderator mod, View v) {
-        this.mod = mod;
+    InputController(View v) {
         this.v = v;
+        canMove = true;
     }
 
-    // Used by View.displayWho()
-    public Player currentPlayer() {
-        return mod.getCurrentPlayer();
-    }
 
     // Money is false, credits is true
-    public int requestRankUp(boolean currency, int rank)  {
+    public int requestRankUp(int rank, boolean currency)  {
         int[] money_vals = {4, 10, 18, 28, 40};
         int[] credit_vals = {5, 10, 15, 20, 25};
-        Player currPlayer = currentPlayer();
+        Player currPlayer = mod.getCurrentPlayer();
+
+        if (!currPlayer.getRoom().getName().equals("office")) {
+            return 6;
+        }
 
         // Check if rank is max
         if (currPlayer.getRank() == 6) {
-            System.out.println("Maximum rank already attained.");
-            // Fail code 1
             return 1;
         }
 
         // Check if requested rank is <= than current
-        if (currPlayer.getRank() <= rank) {
-            System.out.println("Requested rank is less than or equal to current rank.");
-            // Fail code 2
+        if (currPlayer.getRank() > rank) {
             return 2;
         }
 
         // Check if requested rank is within bounds
         if (rank < 2 || rank > 6) {
-            System.out.println("Requested rank is out of bounds, minimum 2 maximum 6.");
-            // Fail code 3
             return 3;
         }
 
         // Check currency count and subtract if sufficient
         if (currency == true) {
             if (credit_vals[rank - 2] > currPlayer.getCredits()) {
-                System.out.println("Not enough credits for chosen rank.");
-                // Fail code 4
                 return 4;
             }
             currPlayer.setCredits(currPlayer.getCredits() - credit_vals[rank - 2]);
         } else {
             if (money_vals[rank - 2] > currPlayer.getMoney()) {
-                System.out.println("Not enough money for chosen rank.");
-                // Fail code 5
+
                 return 5;
             }
             currPlayer.setMoney(currPlayer.getMoney() - money_vals[rank - 2]);
         }
 
         currPlayer.setRank(rank);
-        System.out.println(String.format("Upgraded to rank %d\n", rank));
-        // Return 0
         return 0;
     }
 
     public int requestMove(int room) {
-        Player currPlayer = currentPlayer();
+        Player currPlayer = mod.getCurrentPlayer();
 
         // Check if player can move
-        if (currPlayer.getCanMove() == false) {
-            System.out.println("Already moved this turn");
+        if (canMove == false) {
             // Fail code 1
             return 1;
         }
 
         // Check if room index is out of bounds
         if (room < 1 || room > currPlayer.getRoom().getAdjacentCount()) {
-            System.out.println("Requested room not valid");
             // Fail code 2
             return 2;
         }
@@ -90,45 +77,46 @@ public class InputController {
     }
 
     public int requestRole(int role) {
-        Player currPlayer = currentPlayer();
+        Player currPlayer = mod.getCurrentPlayer();
 
         // Check if currently in a role
         if (currPlayer.getRole() != null) {
-            System.out.println("Cannot take a role while already working one");
-            // Fail code 1
             return 1;
         }
 
         // Check if room is SoundStage
         if (currPlayer.getRoom() instanceof InertRoom) {
-            System.out.println("No roles to take on this space");
-            // Fail code 2
             return 2;
         }
 
         // Check if index is out of bounds
         if (role < 1 || role > ((SoundStage) currPlayer.getRoom()).getRoleCount()) {
-            System.out.println("Requested role out of bounds");
-            // Fail code 3
             return 3;
         }
 
         ((SoundStage) currPlayer.getRoom()).getRole(role).setTaken(true);
         currPlayer.setRole(((SoundStage) currPlayer.getRoom()).getRole(role));
-        // Return 0
         return 0;
     }
 
     // needs to update shot markers
-    public boolean requestAct() {
-        Player currPlayer = currentPlayer();
-        Random rand = new Random(); // might need to get moved, hard to visualize from here
+    public int requestAct() {
+        Random rand = new Random();
+        Player currPlayer = mod.getCurrentPlayer();
 
-        if (rand.nextInt(6) + 1 < ((SoundStage) currPlayer.getRoom()).getCardBudget()) {
+        if (currPlayer.getRole() == null) {
+            return -1;
+        }
+
+
+        // Failure case
+        int dieResult = rand.nextInt(6);
+        if (dieResult + currPlayer.getRehearsalTokens() < ((SoundStage) currPlayer.getRoom()).getCardBudget()) {
             if (currPlayer.getRole().getStarring() == false) {
                 currPlayer.setMoney(currPlayer.getMoney() + 1);
             }
-            return false;
+
+            return 1;
         }
 
         // On-card role
@@ -139,22 +127,61 @@ public class InputController {
             currPlayer.setMoney(currPlayer.getMoney() + 1);
             currPlayer.setCredits(currPlayer.getCredits() + 1);
         }
-        return true;
+
+        if (((SoundStage) currPlayer.getRoom()).decrementShotMarkers()) {
+            boolean starring = false;
+            ArrayList<Player> extraPlayers = new ArrayList<Player>();
+            LinkedList<Player> starringPlayers = new LinkedList<Player>();
+
+            for (Player p : mod.getPlayers()) {
+                if (p.getRole() != null && currPlayer.getRoom().getName().equals(p.getRoom().getName())) {
+                    if (!p.getRole().getStarring()) {
+                        extraPlayers.add(p);
+                        continue;
+                    }
+                    starring = true;
+
+                    // Descending order, >1 element in list
+                    int i = 0;
+                    for (; starringPlayers.get(i).getRole().getRank() > p.getRole().getRank(); i++);
+                    starringPlayers.add(i, p);
+
+                    if (starringPlayers.size() == 0) starringPlayers.add(p);
+                }
+            }
+
+            if (starring) {
+                int budget = ((SoundStage) currPlayer.getRoom()).getCardBudget();
+                int[] diceResults = new int[budget];
+                for (int i=0; i<budget; i++) {
+                    diceResults[i] = rand.nextInt(6);
+                }
+
+                for (int i = 0; i < diceResults.length; i++) {
+                    Player p = starringPlayers.get(i % starringPlayers.size());
+                    p.setMoney(p.getMoney() + diceResults[i]);
+                }
+
+                for (int i = 0; i < extraPlayers.size(); i++) {
+                    Player p = extraPlayers.get(i);
+                    p.setMoney(p.getMoney() + p.getRole().getRank());
+                }
+            }
+
+            ((SoundStage) currPlayer.getRoom()).setCard(null); 
+        }
+
+        return 0;
     }
 
     public boolean requestRehearse()  {
-        Player currPlayer = currentPlayer();
+        Player currPlayer = mod.getCurrentPlayer();
 
         if (currPlayer.getRehearsalTokens() + 1 == ((SoundStage) currPlayer.getRoom()).getCardBudget()) {
-            System.out.println("Already at maximum rehearsal tokens");
             return false;
         }
         currPlayer.setRehearsalTokens(currPlayer.getRehearsalTokens() + 1);
         return true;
-    }
-
-    public void requestPassTurn() {
-        currentPlayer().setCanMove(true);
     }
 
     // main game loop
@@ -162,65 +189,159 @@ public class InputController {
         initializeGame();
         while (mod.getDay() <= mod.getLastDay()) {
             startDay();
-            while (mod.getTurn() < mod.getPlayerCount()) {
+
+            while (mod.getCardCount() > 1) {
                 takeTurn();
                 mod.setTurn(mod.getTurn() + 1);
+                // some day end check
             }
+
             endDay();
         }
         endGame();
     }
 
     private void takeTurn() {
-        InVec args = v.getUserInput();
-        Enums.action action = args.action();
-        String arg1 = args.arg1();
-        String arg2 = args.arg2();
+        if (mod.getCurrentPlayer().getRole() != null) {
+            canMove = false;
+        }
 
-        switch (action) {
-            case WHO:
-                v.displayWho(mod.getCurrentPlayer());
-            break;
-            case LOCATION:
-                v.displayLocations(mod.getCurrentPlayer(), mod.getPlayers());
-            break;
-            case ROLES:
-                if (mod.getCurrentPlayer().getRoom() instanceof InertRoom) {
-                    v.displayRole(Enums.errno.BAD_ROOM);
+        boolean pass = false;
+        while (pass == false) {
+            InVec args = v.getUserAction();
+            Enums.action action = args.action();
+            String arg1 = args.arg1();
+            String arg2 = args.arg2();
+            System.out.println("DEBUG: " + action.toString() + " " + arg1 + " " + arg2);
 
-                } else {
-                    v.displayRole((SoundStage) mod.getCurrentPlayer().getRoom());
-                }
-            break;
-            case TAKE_ROLE:
-                
-            break;
-            case MOVE:
+            switch (action) {
+                case WHO:
+                    v.displayWho(mod.getCurrentPlayer());
+                    break;
+                case LOCATION:
+                    v.displayLocations(mod.getCurrentPlayer(), mod.getPlayers());
+                    break;
+                case ROOMS: // ONLY IN CONSOLE VIEW
+                    ((ConsoleView) v).displayRooms(mod.getCurrentPlayer().getRoom());
+                    break;
+                case ROLES:
+                    if (mod.getCurrentPlayer().getRoom() instanceof InertRoom) {
+                        v.displayRole(Enums.errno.BAD_ROOM);
+                    } else {
+                        v.displayRole((SoundStage) mod.getCurrentPlayer().getRoom());
+                    }
+                    break;
+                case TAKE_ROLE:
+                    try {
+                        int result = requestRole(Integer.parseInt(arg1));
+                        switch (result) {
+                            case 0:
+                                v.displayTakeRole(mod.getCurrentPlayer().getRole());
+                                break;
+                            case 1:
+                                v.displayTakeRole(Enums.errno.IN_ROLE);
+                                break;
+                            case 2:
+                                v.displayTakeRole(Enums.errno.BAD_ROOM);
+                                break;
+                            case 3:
+                                v.displayTakeRole(Enums.errno.OOB);
+                                break;
+                        }
+                    }
+                    catch (NumberFormatException e) {
+                        v.displayRole(Enums.errno.BAD_ARGS);
+                    }
+                    break;
+                case MOVE:
+                    try {
+                        int result = requestMove(Integer.parseInt(arg1));
+                        switch (result) {
+                            case 0:
+                                v.displayMove(mod.getCurrentPlayer().getRoom());
+                                break;
+                            case 1:
+                                v.displayMove(Enums.errno.FORBIDDEN_ACTION);
+                                break;
+                            case 2:
+                                v.displayMove(Enums.errno.OOB);
+                            default:
+                                break;
+                        }
+                    } catch (Exception e) {
+                        v.displayMove(Enums.errno.BAD_ARGS);
+                    }
+                    break;
+                case UPGRADE:
+                    try {
+                        if (!("money".equals(arg2) || "credits".equals(arg2))) {
+                            v.displayUpgrade(Enums.errno.BAD_ARGS);
+                            break;
+                        }
 
-            break;
-            case UPGRADE:
-
-            break;
-            case ACT:
-
-            break;
-            case REHEARSE:
-
-            break;
-            case PASS:
-
-            break;
-            default:
-            System.exit(1);
-            break;
+                        int result = requestRankUp(Integer.parseInt(arg1), "credits".equals(arg2));
+                        switch (result) {
+                            case 0:
+                                v.displayUpgrade(mod.getCurrentPlayer().getRank());
+                                break;
+                            case 1:
+                                v.displayUpgrade(Enums.errno.MAX_RANK);
+                                break;
+                            case 2:
+                                v.displayUpgrade(Enums.errno.LEQ);
+                                break;
+                            case 3:
+                                v.displayUpgrade(Enums.errno.OOB);
+                                break;
+                            case 4:
+                                v.displayUpgrade(Enums.errno.NO_CREDITS);
+                                break;
+                            case 5:
+                                v.displayUpgrade(Enums.errno.NO_MONEY);
+                                break;
+                            case 6:
+                                v.displayUpgrade(Enums.errno.BAD_ROOM);
+                                break;
+                        }
+                    }
+                    catch (NumberFormatException e) {
+                        v.displayUpgrade(Enums.errno.BAD_ARGS);
+                    }
+                    break;
+                case ACT:
+                    // TODO
+                    break;
+                case REHEARSE:
+                    if (requestRehearse()) {
+                        v.displayRehearse(mod.getCurrentPlayer());
+                    } else {
+                        v.displayRehearse(Enums.errno.FORBIDDEN_ACTION);
+                    }
+                    break;
+                case PASS:
+                    canMove = true;
+                    pass = true;
+                    break;
+                default:
+                    System.exit(1);
+                    break;
+            }
         }
     }
 
     private void initializeGame() {
-
-        // TODO: call controller to get playercount, valid range: [2,8]
         v.displayInit();
-        // TODO Get player count
+        int playerCount = -1;
+        do {
+            try {
+                playerCount = Integer.parseInt(v.getUserInput());
+            }
+            catch (NumberFormatException e) {
+            }
+            // TODO print error if not in bounds
+        } while (playerCount < 2 || playerCount > 8);
+        mod = new Moderator(playerCount);
+
 
         Random rand = new Random();
         mod.setTurn(rand.nextInt(mod.getPlayerCount()));
@@ -245,8 +366,8 @@ public class InputController {
         }
 
         for (int i=0; i<mod.getPlayerCount(); i++) {
-            // TODO: call controller to get name
-            mod.setPlayer(i, new Player("TEMP", startCredits, startRank));
+            String name = v.getPlayerName(i + 1);
+            mod.setPlayer(i, new Player(name, startCredits, startRank));
         }
     }
 

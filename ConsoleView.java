@@ -1,21 +1,31 @@
 import java.util.Scanner;
 
-public class ConsoleView {
-    InputController inCtrl;
+public class ConsoleView implements View{
     Scanner sc;
 
-    public ConsoleView(InputController inCtrl) {
+    public ConsoleView() {
         sc = new Scanner(System.in);
-        this.inCtrl = inCtrl;
     }
 
-    public InVec getUserInput() {
+    public String getUserInput() {
         System.out.print("> ");
-        String input = sc.nextLine();
-        String[] input_tokens = input.split(" ", 1);
+        return sc.nextLine();
+    }
+
+    public String getPlayerName(int i) {
+        System.out.println("Enter name for player " + i);
+        return getUserInput();
+    }
+
+    public InVec getUserAction() {
         Enums.action action = Enums.action.UNKNOWN;
+        String input = null;
+        String[] input_tokens = null;
 
         while (action == Enums.action.UNKNOWN) {
+            input = getUserInput();
+            input_tokens = input.split(" ", 2);
+
             if ("who".equals(input_tokens[0])) {
                 if (input_tokens.length != 1) {
                     // TODO
@@ -27,6 +37,12 @@ public class ConsoleView {
                     // TODO
                 } else {
                     action = Enums.action.LOCATION;
+                }
+            } else if ("rooms".equals(input_tokens[0])) {
+                if (input_tokens.length != 1) {
+                    // TODO
+                } else {
+                    action = Enums.action.ROOMS;
                 }
             } else if ("roles".equals(input_tokens[0])) {
                 if (input_tokens.length != 1) {
@@ -84,28 +100,29 @@ public class ConsoleView {
             vec = new InVec(action, input_tokens[1], null);
             break;
             case 3:
-            vec = new InVec(action, input_tokens[2], input_tokens[2]);
+            vec = new InVec(action, input_tokens[1], input_tokens[2]);
         }
 
         return vec;
     }
 
     public void displayInit() {
-        System.out.println("Welcome to Deadwood!"
+        System.out.println("Welcome to Deadwood!\n"
             + "Enter a number of players");
     }
 
     // Display information
     public void displayHelp() {
         System.out.println("Available actions:"
-            + "who: View current player's information"
-            + "loc: View all player's locations"
-            + "roles: View available roles"
-            + "takerole <role name>: Take selected role"
-            + "move <room name>: Move to selected room"
-            + "upgrade <rank> <money|credits>: Upgrade rank using specified currency"
-            + "act: Act!"
-            + "rehearse: Rehearse!"
+            + "who: View current player's information\n"
+            + "loc: View all player's locations\n"
+            + "rooms: View all rooms adjacent to your current room\n"
+            + "roles: View available roles\n"
+            + "takerole <role name>: Take selected role\n"
+            + "move <room name>: Move to selected room\n"
+            + "upgrade <rank> <money|credits>: Upgrade rank using specified currency\n"
+            + "act: Act!\n"
+            + "rehearse: Rehearse!\n"
             + "pass: Pass the turn");
     }
 
@@ -113,22 +130,31 @@ public class ConsoleView {
         String name = player.getName();
         String money = Integer.toString(player.getMoney());
         String credits = Integer.toString(player.getCredits());
-        String role = player.getRole().getName();
-        String line = player.getRole().getLine();
+        String role = (player.getRole() != null) ? player.getRole().getName() : "none";
+        String line = (player.getRole() != null) ? player.getRole().getLine() : "";
 
         System.out.println("Active player: " + name
-                           + "\tMoney: " + money
-                           + "\tCredits: " + credits
-                           + "\tJob: " + role + ", " + line);
+                           + "\n\tMoney: " + money
+                           + "\n\tCredits: " + credits
+                           + "\n\tJob: " + role + ", " + line);
     }
 
     public void displayLocations(Player activePlayer, Player[] players) {
         System.out.println("Locations:");
         for (Player player : players) {
-            String taken = (player == activePlayer) ? "*" : "";
+            String current = (player == activePlayer) ? "*" : "";
             String name = player.getName();
             String room = player.getRoom().getName();
-            System.out.println("\t" + taken + name + ": " + room);
+            System.out.println("\t" + current + name + ": " + room);
+        }
+    }
+
+    public void displayRooms(Room room) {
+        System.out.println("Adjacent Rooms:");
+        int i = 0;
+        for(Room r : room.getAdjacentRooms()) {
+            i++;
+            System.out.println("\t" + i + ". " + r.getName());
         }
     }
 
@@ -138,8 +164,8 @@ public class ConsoleView {
         int numRoles = ss.getRoleCount();
         for (int i=0; i<numRoles; i++) {
             Role role = ss.getRole(i);
-            String starring = (role.getStarring()) ? "+" : "";
-            String taken = (role.getTaken()) ? "*" : "";
+            String starring = (role.getStarring()) ? "*" : "";
+            String taken = (role.getTaken()) ? "-" : "";
             String name = role.getName();
             String rank = Integer.toString(role.getRank());
             String index = Integer.toString(i+1) + ".";
@@ -164,10 +190,10 @@ public class ConsoleView {
         System.out.println("You took role " + name + ", " + line);
     }
 
-
+    
     public void displayTakeRole(Enums.errno errno) {
         switch (errno) {
-            case BAD_ROLE:
+            case OOB:
                 System.out.println("Role does not exist");
                 break;
             case BAD_ROOM:
@@ -176,6 +202,8 @@ public class ConsoleView {
             case IN_ROLE:
                 System.out.println("You already have a role");
                 break;
+            case BAD_ARGS:
+                System.out.println("Role index must be a number");
             default:
                 break;
         }
@@ -183,26 +211,28 @@ public class ConsoleView {
 
 
     public void displayMove(Room room) {
-        if (room == null) {
-            System.out.println("Room does not exist");
-        } else {
-            String name = room.getName();
-            System.out.println("You moved to " + name);
-        }
+        String name = room.getName();
+        System.out.println("You moved to " + name);
     }
 
     public void displayRole(Enums.errno errno) {
-
+        System.out.println("This room doesn't have any roles");
     }
 
+    public void displayAct(Enums.errno errno) {
+        System.out.println("You don't have a role");
+    }
 
     public void displayMove(Enums.errno errno) {
         switch (errno) {
-            case BAD_ROOM:
+            case FORBIDDEN_ACTION:
+                System.out.println("You can't move right now");
+                break;
+            case OOB:
                 System.out.println("Room isn't available");
                 break;
-            case FORBIDDEN_ACTION:
-                System.out.println("You can't move");
+            case BAD_ARGS:
+                System.out.println("Improper arguments for command upgrade");
                 break;
             default:
                 break;
@@ -230,13 +260,26 @@ public class ConsoleView {
             case LEQ:
                 System.out.println("Requested rank less than or equal to your current rank");
                 break;
+            case BAD_ARGS:
+                System.out.println("Improper arguments for command upgrade");
+                break;
+            case BAD_ROOM:
+                System.out.println("You are not at the casting office");
+                break;
             default:
                 break;
         }
     }
 
     public void displayRehearse(Player player) {
-        System.out.println("You now have "); // TODO
+        System.out.println("You now have " +
+            String.format("%d", player.getRehearsalTokens())
+            + "rehearsal tokens");
+    }
+
+    public void displayRehearse(Enums.errno errno) {
+        System.out.println("You already have the maximum number rehearsal"
+            + "tokens for this role");
     }
 
 

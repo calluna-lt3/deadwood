@@ -6,6 +6,7 @@ public class Moderator {
     int day;
     int lastDay;
     Deck deck;
+    int cardCount;
 
 
     Moderator(int playerCount) {
@@ -16,13 +17,19 @@ public class Moderator {
         turn = 0;
         players = new Player[playerCount];
         deck = new Deck();
+        cardCount = 10;
     }
 
-    public int getDay() {return day; }
-    public int getLastDay() {return lastDay; }
-    public int getTurn() {return turn; }
-    public int getPlayerCount() {return playerCount; }
-    public Player[] getPlayers() {return players; }
+    public void resetCardCount() { this.cardCount = 10; }
+
+    public void decrementCardCount() { this.cardCount--; }
+    public int getCardCount() { return this.cardCount; }
+
+    public int getDay() { return day; }
+    public int getLastDay() { return lastDay; }
+    public int getTurn() { return turn; }
+    public int getPlayerCount() { return playerCount; }
+    public Player[] getPlayers() { return players; }
     public Player getCurrentPlayer() {
         return players[turn];
     }

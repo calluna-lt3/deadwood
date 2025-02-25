@@ -1,6 +1,8 @@
 public interface View {
     public void displayInit();
-    public InVec getUserInput();
+    public String getUserInput();
+    public InVec getUserAction();
+    public String getPlayerName(int i);
 
     // Display information
     public void displayHelp();
@@ -11,17 +13,19 @@ public interface View {
 
     // Infallible actions
     public void displayEndGame();
-    public void displayPassTurn();
+    public void displayPassTurn(Player player);
 
     // Fallible actions (return 0 on success, non-zero code on fail)
-    public void displayTakeRole(int role);
+    public void displayTakeRole(Role role);
     public void displayTakeRole(Enums.errno errno);
-    public void displayMove(int room);
+    public void displayMove(Room room);
     public void displayMove(Enums.errno errno);
-    public void displayUpgrade(boolean currency, int rank);
+    public void displayUpgrade(int rank);
     public void displayUpgrade(Enums.errno errno);
-    public void displayRehearse();
+    public void displayRehearse(Player player);
+    public void displayRehearse(Enums.errno errno);
 
     // Stochastic actions (return the result of a dice check)
     public void displayAct();
+    public void displayAct(Enums.errno errno);
 }
