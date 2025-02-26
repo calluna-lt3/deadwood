@@ -43,7 +43,7 @@ public class XMLParser {
             cardRoot = cardDoc.getDocumentElement();
             boardRoot = boardDoc.getDocumentElement();
         } catch (Exception ex) {
-            System.out.println("ERROR: " + ex);
+            System.err.println("ERROR: " + ex);
             System.exit(1);
         }
 
@@ -61,7 +61,7 @@ public class XMLParser {
         try {
             doc = db.parse(filename);
         } catch (Exception ex) {
-            System.out.println("ERROR: XML parse failure");
+            System.err.println("ERROR: XML parse failure");
             ex.printStackTrace();
             System.exit(1);
         }

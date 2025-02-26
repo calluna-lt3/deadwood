@@ -248,6 +248,9 @@ public class InputController {
                             case -3:
                                 v.displayTakeRole(Enums.errno.OOB);
                                 break;
+                            default:
+                                System.err.println("fatal error");
+                                System.exit(1);
                         }
                     }
                     catch (NumberFormatException e) {
@@ -267,7 +270,8 @@ public class InputController {
                             case -2:
                                 v.displayMove(Enums.errno.OOB);
                             default:
-                                break;
+                                System.err.println("fatal error");
+                                System.exit(1);
                         }
                     } catch (Exception e) {
                         v.displayMove(Enums.errno.BAD_ARGS);
@@ -303,6 +307,9 @@ public class InputController {
                             case -6:
                                 v.displayUpgrade(Enums.errno.BAD_ROOM);
                                 break;
+                            default:
+                                System.err.println("fatal error");
+                                System.exit(1);
                         }
                     }
                     catch (NumberFormatException e) {
@@ -322,9 +329,8 @@ public class InputController {
                             v.displayAct(Enums.errno.FORBIDDEN_ACTION);
                             break;
                         default:
-                            System.out.println("fatal error");
+                            System.err.println("fatal error");
                             System.exit(1);
-                            break;
                     }
                     break;
                 case REHEARSE:
@@ -339,9 +345,8 @@ public class InputController {
                     pass = true;
                     break;
                 default:
-                    System.out.println("fatal error");
+                    System.err.println("fatal error");
                     System.exit(1);
-                    break;
             }
         }
     }
@@ -371,7 +376,8 @@ public class InputController {
                 startRank = 2;
                 break;
             default:
-                break;
+                System.err.println("fatal error");
+                System.exit(1);
         }
 
         for (int i=0; i<mod.getPlayerCount(); i++) {

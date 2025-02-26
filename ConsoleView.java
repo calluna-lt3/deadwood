@@ -92,13 +92,17 @@ public class ConsoleView implements View{
         InVec vec = null;
         switch (input_tokens.length) {
             case 1:
-            vec = new InVec(action, null, null);
-            break;
+                vec = new InVec(action, null, null);
+                break;
             case 2:
-            vec = new InVec(action, input_tokens[1], null);
-            break;
+                vec = new InVec(action, input_tokens[1], null);
+                break;
             case 3:
-            vec = new InVec(action, input_tokens[1], input_tokens[2]);
+                vec = new InVec(action, input_tokens[1], input_tokens[2]);
+                break;
+            default:
+                System.err.println("fatal error");
+                System.exit(1);
         }
 
         return vec;
@@ -262,8 +266,10 @@ public class ConsoleView implements View{
                 break;
             case BAD_ARGS:
                 System.out.println("Role index must be a number");
-            default:
                 break;
+            default:
+                System.err.println("fatal error");
+                System.exit(1);
         }
     }
 
@@ -316,7 +322,8 @@ public class ConsoleView implements View{
                 System.out.println("Room number must be a number");
                 break;
             default:
-                break;
+                System.err.println("fatal error");
+                System.exit(1);
         }
     }
 
@@ -345,7 +352,8 @@ public class ConsoleView implements View{
                 System.out.println("You are not at the casting office");
                 break;
             default:
-                break;
+                System.err.println("fatal error");
+                System.exit(1);
         }
     }
 
