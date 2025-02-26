@@ -5,10 +5,12 @@ import java.util.Random;
 public class InputController {
     View v;
     Moderator mod;
+    Random random;
     boolean canMove;
 
     InputController(View v) {
         this.v = v;
+        this.random = new Random();
         canMove = true;
     }
 
@@ -99,7 +101,6 @@ public class InputController {
 
     // needs to update shot markers
     public int requestAct() {
-        Random rand = new Random();
         Player currPlayer = mod.getCurrentPlayer();
 
         if (currPlayer.getRole() == null) {
@@ -108,7 +109,7 @@ public class InputController {
 
 
         // Failure case
-        int dieResult = rand.nextInt(6);
+        int dieResult = random.nextInt(6);
         v.displayDiceRolls(dieResult);
         if (dieResult + currPlayer.getRehearsalTokens() < ((SoundStage) currPlayer.getRoom()).getCardBudget()) {
             if (currPlayer.getRole().getStarring() == false) {
@@ -153,7 +154,7 @@ public class InputController {
                 int budget = ((SoundStage) currPlayer.getRoom()).getCardBudget();
                 int[] diceResults = new int[budget];
                 for (int i=0; i<budget; i++) {
-                    diceResults[i] = rand.nextInt(6);
+                    diceResults[i] = random.nextInt(6);
                 }
                 v.displayDiceRolls(diceResults);
 
@@ -357,8 +358,7 @@ public class InputController {
         mod = new Moderator(playerCount);
 
 
-        Random rand = new Random();
-        mod.setTurn(rand.nextInt(mod.getPlayerCount()));
+        mod.setTurn(random.nextInt(mod.getPlayerCount()));
 
         int startCredits = 1;
         int startRank = 1;
