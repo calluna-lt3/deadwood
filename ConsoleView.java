@@ -146,9 +146,9 @@ public class ConsoleView implements View{
             + "\tloc: View all player's locations\n"
             + "\trooms: View all rooms adjacent to your current room\n"
             + "\troles: View available roles\n"
-            + "\ttakerole <role name>: Take selected role\n"
-            + "\tmove <room name>: Move to selected room\n"
-            + "\tupgrade <rank> <money|credits>: Upgrade rank using specified currency\n"
+            + "\ttakerole: Take selected role\n"
+            + "\tmove: Move to selected room\n"
+            + "\tupgrade: Upgrade rank using specified currency\n"
             + "\tact: Act!\n"
             + "\trehearse: Rehearse!\n"
             + "\tpass: Pass the turn");
@@ -300,6 +300,7 @@ public class ConsoleView implements View{
             if (i > 0) System.out.print(", ");
             System.out.print(diceRolled[i]);
         }
+        System.out.print("\n");
     }
 
 

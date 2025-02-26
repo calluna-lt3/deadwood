@@ -12,13 +12,9 @@ Run: `make run`
 
 ## TODO
 
-`Main.java`  
-- initialize game  
+ConsoleView.java  
+- displayAct: basic implementation is done, could expand it to display info
+  about money/credits but not necessary  
 
-`ConsoleView.java`  
-- displayRehearse  
-- displayAct  
-
-`InputController.java`  
-- parse user input to call correct methods (e.g. player count, rehearse, etc)  
-- connect to view  
+InputController.java  
+- add limit to number of times someone can act  

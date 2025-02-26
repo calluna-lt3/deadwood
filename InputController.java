@@ -211,7 +211,6 @@ public class InputController {
             Enums.action action = args.action();
             String arg1 = args.arg1();
             String arg2 = args.arg2();
-            System.out.println("DEBUG ARGS: " + action.toString() + " " + arg1 + " " + arg2);
 
             switch (action) {
                 case HELP:
