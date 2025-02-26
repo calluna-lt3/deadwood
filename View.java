@@ -3,6 +3,7 @@ public interface View {
     public String getUserInput();
     public InVec getUserAction();
     public String getPlayerName(int i);
+    public int getPlayerCount();
 
     // Display information
     public void displayHelp();
@@ -12,8 +13,10 @@ public interface View {
     public void displayRole(Enums.errno errno);
 
     // Infallible actions
-    public void displayEndGame();
+    // this method signature is bad, but its the easiest way to implement this with for now
+    public void displayEndGame(Player[] players, int[] scores, String[] winners, int winningScore);
     public void displayPassTurn(Player player);
+    public void displayDiceRolls(int... diceRolled); // NOTE: only view method called outside of takeTurn()
 
     // Fallible actions (return 0 on success, non-zero code on fail)
     public void displayTakeRole(Role role);
@@ -26,6 +29,6 @@ public interface View {
     public void displayRehearse(Enums.errno errno);
 
     // Stochastic actions (return the result of a dice check)
-    public void displayAct();
+    public void displayAct(boolean success);
     public void displayAct(Enums.errno errno);
 }

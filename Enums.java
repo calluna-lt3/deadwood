@@ -13,6 +13,7 @@ public class Enums {
 
     public static enum action {
         UNKNOWN,
+        HELP,
         WHO,
         LOCATION,
         ROOMS,

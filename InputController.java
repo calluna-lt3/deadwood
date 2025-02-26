@@ -20,34 +20,34 @@ public class InputController {
         Player currPlayer = mod.getCurrentPlayer();
 
         if (!currPlayer.getRoom().getName().equals("office")) {
-            return 6;
+            return -6;
         }
 
         // Check if rank is max
         if (currPlayer.getRank() == 6) {
-            return 1;
+            return -1;
         }
 
         // Check if requested rank is <= than current
         if (currPlayer.getRank() > rank) {
-            return 2;
+            return -2;
         }
 
         // Check if requested rank is within bounds
         if (rank < 2 || rank > 6) {
-            return 3;
+            return -3;
         }
 
         // Check currency count and subtract if sufficient
         if (currency == true) {
             if (credit_vals[rank - 2] > currPlayer.getCredits()) {
-                return 4;
+                return -4;
             }
             currPlayer.setCredits(currPlayer.getCredits() - credit_vals[rank - 2]);
         } else {
             if (money_vals[rank - 2] > currPlayer.getMoney()) {
 
-                return 5;
+                return -5;
             }
             currPlayer.setMoney(currPlayer.getMoney() - money_vals[rank - 2]);
         }
@@ -61,14 +61,12 @@ public class InputController {
 
         // Check if player can move
         if (canMove == false) {
-            // Fail code 1
-            return 1;
+            return -1;
         }
 
         // Check if room index is out of bounds
         if (room < 1 || room > currPlayer.getRoom().getAdjacentCount()) {
-            // Fail code 2
-            return 2;
+            return -2;
         }
 
         currPlayer.setRoom(currPlayer.getRoom().getAdjacentRooms().get(room - 1));
@@ -81,17 +79,17 @@ public class InputController {
 
         // Check if currently in a role
         if (currPlayer.getRole() != null) {
-            return 1;
+            return -1;
         }
 
         // Check if room is SoundStage
         if (currPlayer.getRoom() instanceof InertRoom) {
-            return 2;
+            return -2;
         }
 
         // Check if index is out of bounds
         if (role < 1 || role > ((SoundStage) currPlayer.getRoom()).getRoleCount()) {
-            return 3;
+            return -3;
         }
 
         ((SoundStage) currPlayer.getRoom()).getRole(role).setTaken(true);
@@ -111,6 +109,7 @@ public class InputController {
 
         // Failure case
         int dieResult = rand.nextInt(6);
+        v.displayDiceRolls(dieResult);
         if (dieResult + currPlayer.getRehearsalTokens() < ((SoundStage) currPlayer.getRoom()).getCardBudget()) {
             if (currPlayer.getRole().getStarring() == false) {
                 currPlayer.setMoney(currPlayer.getMoney() + 1);
@@ -156,6 +155,7 @@ public class InputController {
                 for (int i=0; i<budget; i++) {
                     diceResults[i] = rand.nextInt(6);
                 }
+                v.displayDiceRolls(diceResults);
 
                 for (int i = 0; i < diceResults.length; i++) {
                     Player p = starringPlayers.get(i % starringPlayers.size());
@@ -168,7 +168,7 @@ public class InputController {
                 }
             }
 
-            ((SoundStage) currPlayer.getRoom()).setCard(null); 
+            ((SoundStage) currPlayer.getRoom()).setCard(null);
         }
 
         return 0;
@@ -189,15 +189,14 @@ public class InputController {
         initializeGame();
         while (mod.getDay() <= mod.getLastDay()) {
             startDay();
-
             while (mod.getCardCount() > 1) {
                 takeTurn();
                 mod.setTurn(mod.getTurn() + 1);
-                // some day end check
             }
 
             endDay();
         }
+
         endGame();
     }
 
@@ -212,9 +211,12 @@ public class InputController {
             Enums.action action = args.action();
             String arg1 = args.arg1();
             String arg2 = args.arg2();
-            System.out.println("DEBUG: " + action.toString() + " " + arg1 + " " + arg2);
+            System.out.println("DEBUG ARGS: " + action.toString() + " " + arg1 + " " + arg2);
 
             switch (action) {
+                case HELP:
+                    v.displayHelp();
+                    break;
                 case WHO:
                     v.displayWho(mod.getCurrentPlayer());
                     break;
@@ -238,13 +240,13 @@ public class InputController {
                             case 0:
                                 v.displayTakeRole(mod.getCurrentPlayer().getRole());
                                 break;
-                            case 1:
+                            case -1:
                                 v.displayTakeRole(Enums.errno.IN_ROLE);
                                 break;
-                            case 2:
+                            case -2:
                                 v.displayTakeRole(Enums.errno.BAD_ROOM);
                                 break;
-                            case 3:
+                            case -3:
                                 v.displayTakeRole(Enums.errno.OOB);
                                 break;
                         }
@@ -260,10 +262,10 @@ public class InputController {
                             case 0:
                                 v.displayMove(mod.getCurrentPlayer().getRoom());
                                 break;
-                            case 1:
+                            case -1:
                                 v.displayMove(Enums.errno.FORBIDDEN_ACTION);
                                 break;
-                            case 2:
+                            case -2:
                                 v.displayMove(Enums.errno.OOB);
                             default:
                                 break;
@@ -284,22 +286,22 @@ public class InputController {
                             case 0:
                                 v.displayUpgrade(mod.getCurrentPlayer().getRank());
                                 break;
-                            case 1:
+                            case -1:
                                 v.displayUpgrade(Enums.errno.MAX_RANK);
                                 break;
-                            case 2:
+                            case -2:
                                 v.displayUpgrade(Enums.errno.LEQ);
                                 break;
-                            case 3:
+                            case -3:
                                 v.displayUpgrade(Enums.errno.OOB);
                                 break;
-                            case 4:
+                            case -4:
                                 v.displayUpgrade(Enums.errno.NO_CREDITS);
                                 break;
-                            case 5:
+                            case -5:
                                 v.displayUpgrade(Enums.errno.NO_MONEY);
                                 break;
-                            case 6:
+                            case -6:
                                 v.displayUpgrade(Enums.errno.BAD_ROOM);
                                 break;
                         }
@@ -309,7 +311,22 @@ public class InputController {
                     }
                     break;
                 case ACT:
-                    // TODO
+                    int result = requestAct();
+                    switch (result) {
+                        case 0:
+                            v.displayAct(true);
+                            break;
+                        case 1:
+                            v.displayAct(false);
+                            break;
+                        case -1:
+                            v.displayAct(Enums.errno.FORBIDDEN_ACTION);
+                            break;
+                        default:
+                            System.out.println("fatal error");
+                            System.exit(1);
+                            break;
+                    }
                     break;
                 case REHEARSE:
                     if (requestRehearse()) {
@@ -323,6 +340,7 @@ public class InputController {
                     pass = true;
                     break;
                 default:
+                    System.out.println("fatal error");
                     System.exit(1);
                     break;
             }
@@ -331,15 +349,7 @@ public class InputController {
 
     private void initializeGame() {
         v.displayInit();
-        int playerCount = -1;
-        do {
-            try {
-                playerCount = Integer.parseInt(v.getUserInput());
-            }
-            catch (NumberFormatException e) {
-            }
-            // TODO print error if not in bounds
-        } while (playerCount < 2 || playerCount > 8);
+        int playerCount = v.getPlayerCount();
         mod = new Moderator(playerCount);
 
 
@@ -401,14 +411,18 @@ public class InputController {
     // calculate scores, determines winner, etc.
     private void endGame() {
         String[] winners = new String[0];
+        Player[] players = mod.getPlayers();
+        int[] scores = new int[players.length];
         int winnerIndex = 0;
         int highestScore = 0;
 
-        for (Player p : mod.getPlayers()) {
+        for (int i=0; i<players.length; i++) {
+            Player p = players[i];
             int score = 0;
             score += p.getCredits();
             score += p.getMoney();
             score += (5 * p.getRank());
+            scores[i] = score;
 
             if (score > highestScore) {
                 highestScore = score;
@@ -421,7 +435,6 @@ public class InputController {
             }
         }
 
-        // TODO: call controller to display winners
-
+        v.displayEndGame(players, scores, winners, highestScore); // FUCK
     }
 }
