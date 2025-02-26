@@ -119,7 +119,7 @@ public class XMLParser {
 
                 // gets role info
                 if("part".equals(cardSub.getNodeName())) {
-                    roles.add(parsePart(cardSub));
+                    roles.add(parsePart(cardSub, true));
                 }
             }
 
@@ -130,7 +130,7 @@ public class XMLParser {
     }
 
 
-    private Role parsePart(Node part) {
+    private Role parsePart(Node part, boolean card) {
         String roleLine = "";
         String roleName = part.getAttributes().getNamedItem("name").getNodeValue();
         int roleLevel = Integer.parseInt(part.getAttributes().getNamedItem("level").getNodeValue());
@@ -145,7 +145,7 @@ public class XMLParser {
             }
         }
 
-        return new Role(roleName, roleLine, roleLevel, true);
+        return new Role(roleName, roleLine, roleLevel, card);
     }
 
 
@@ -193,7 +193,7 @@ public class XMLParser {
                     Node partsSub = partsChildren.item(j);
 
                     if("part".equals(partsSub.getNodeName())) {
-                        roles.add(parsePart(partsSub));
+                        roles.add(parsePart(partsSub, false));
                     }
                 }
             }

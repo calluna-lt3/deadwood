@@ -23,10 +23,10 @@ public class SoundStage extends Room {
     public void setCard(SceneCard c) {
         this.card = c;
     }
-    
+
     // returns true if scene is finished, false if not
-    //      method that calls this should handle cleanup of this soundstage
-    public boolean decrementShotMarkers() { // TODO: probably needs better method name
+    //   caller should handle cleanup of this soundstage
+    public boolean decrementShotMarkers() {
         shotMarkers--;
         return (shotMarkers == 0) ? true : false;
     }
@@ -68,6 +68,4 @@ public class SoundStage extends Room {
 
         return card.getBudget();
     }
-
-
 }

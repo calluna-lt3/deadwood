@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Random;
 
 public class Deck {
     ArrayList<SceneCard> cards;
@@ -7,7 +8,7 @@ public class Deck {
     public Deck() {
         XMLParser xmlp = new XMLParser();
         cards = xmlp.getSceneCards();
-        Collections.shuffle(cards);
+        Collections.shuffle(cards, new Random());
     }
 
     public SceneCard draw() {
