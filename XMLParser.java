@@ -14,42 +14,69 @@ import java.sql.Array;
 
 public class XMLParser {
     private String boardPath;
-    private String cardPath;
+    private String cardsPath;
     private NodeList cardList;
     private NodeList roomList;
+    public enum type {
+        CARDS,
+        BOARD,
+        ALL,
+    }
 
 
-    XMLParser() {
+    XMLParser(type type) {
         this.boardPath = "./data/board.xml";
-        this.cardPath = "./data/cards.xml";
-        this.init();
+        this.cardsPath = "./data/cards.xml";
+        this.init(type);
     }
 
-    XMLParser(String boardPath, String cardPath) {
+
+    XMLParser(type type, String boardPath, String cardsPath) {
         this.boardPath = boardPath;
-        this.cardPath = cardPath;
-        this.init();
+        this.cardsPath = cardsPath;
+        this.init(type);
     }
 
 
-    private void init() {
-        Element cardRoot = null;
-        Element boardRoot = null;
+    // lots of duplicate code, idc
+    private void init(type type) {
 
         try {
-            Document cardDoc = getDoc(cardPath);
-            Document boardDoc = getDoc(boardPath);
+            Element cardRoot = null;
+            Element boardRoot = null;
 
-            cardRoot = cardDoc.getDocumentElement();
-            boardRoot = boardDoc.getDocumentElement();
+            Document cardDoc = null;
+            Document boardDoc = null;
+
+            switch (type) {
+                case ALL:
+                    cardDoc = getDoc(cardsPath);
+                    boardDoc = getDoc(boardPath);
+
+                    cardRoot = cardDoc.getDocumentElement();
+                    boardRoot = boardDoc.getDocumentElement();
+
+                    cardList = cardRoot.getElementsByTagName("card");
+                    roomList = boardRoot.getChildNodes();
+                    break;
+                case BOARD:
+                    boardDoc = getDoc(boardPath);
+                    boardRoot = boardDoc.getDocumentElement();
+                    roomList = boardRoot.getChildNodes();
+                    break;
+                case CARDS:
+                    cardDoc = getDoc(cardsPath);
+                    cardRoot = cardDoc.getDocumentElement();
+                    cardList = cardRoot.getElementsByTagName("card");
+                    break;
+                default:
+                    System.err.println("fatal error");
+                    System.exit(1);
+            }
         } catch (Exception ex) {
             System.err.println("ERROR: " + ex);
             System.exit(1);
         }
-
-        // dont think this can throw exceptions
-        cardList = cardRoot.getElementsByTagName("card");
-        roomList = boardRoot.getChildNodes(); // not all elements the same name
     }
 
 

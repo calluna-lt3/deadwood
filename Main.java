@@ -8,7 +8,7 @@ public class Main {
     }
 
     public static void testParser() {
-        XMLParser xmlp = new XMLParser();
+        XMLParser xmlp = new XMLParser(XMLParser.type.ALL);
         ArrayList<SceneCard> cards = xmlp.getSceneCards();
         for (SceneCard card : cards) {
             System.out.println("name: " + card.name);

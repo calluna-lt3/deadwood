@@ -121,6 +121,9 @@ public class ConsoleView implements View{
     }
 
 
+    // TODO: consider returning a record of (int count, String[] players)
+    //       would make gui simpler (1 popup instead of many)
+    //       e.g. popup of 8 boxes for names, can infer count based on non-empty boxes
     public int getPlayerCount() {
         int count = -1;
         while (count < 2 || count > 8) {

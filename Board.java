@@ -4,7 +4,7 @@ public class Board {
     ArrayList<Room> rooms;
 
     public Board() {
-        XMLParser xmlp = new XMLParser();
+        XMLParser xmlp = new XMLParser(XMLParser.type.BOARD);
         rooms = xmlp.getRooms();
         calculateAdjacency();
     }

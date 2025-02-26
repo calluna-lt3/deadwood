@@ -6,7 +6,7 @@ public class Deck {
     ArrayList<SceneCard> cards;
 
     public Deck() {
-        XMLParser xmlp = new XMLParser();
+        XMLParser xmlp = new XMLParser(XMLParser.type.CARDS);
         cards = xmlp.getSceneCards();
         Collections.shuffle(cards, new Random());
     }
