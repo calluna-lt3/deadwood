@@ -440,6 +440,6 @@ public class InputController {
             }
         }
 
-        v.displayEndGame(players, scores, winners, highestScore); // FUCK
+        v.displayEndGame(players, scores, winners, highestScore);
     }
 }
