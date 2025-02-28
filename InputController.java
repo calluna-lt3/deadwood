@@ -6,12 +6,14 @@ public class InputController {
     View v;
     Moderator mod;
     Random random;
-    boolean canMove;
+    boolean canMove, canAct, canRehearse;
 
     InputController(View v) {
         this.v = v;
         this.random = new Random();
         canMove = true;
+        canAct = true;
+        canRehearse = true;
     }
 
 
@@ -107,6 +109,9 @@ public class InputController {
             return -1;
         }
 
+        if (canAct == false) {
+            return -2;
+        }
 
         // Failure case
         int dieResult = random.nextInt(6);
@@ -116,6 +121,7 @@ public class InputController {
                 currPlayer.setMoney(currPlayer.getMoney() + 1);
             }
 
+            canAct = false;
             return 1;
         }
 
@@ -172,17 +178,23 @@ public class InputController {
             ((SoundStage) currPlayer.getRoom()).setCard(null);
         }
 
+        canAct = false;
         return 0;
     }
 
-    public boolean requestRehearse()  {
+    public int requestRehearse()  {
         Player currPlayer = mod.getCurrentPlayer();
 
+        if (canRehearse == false) {
+            return -2;
+        }
+
         if (currPlayer.getRehearsalTokens() + 1 == ((SoundStage) currPlayer.getRoom()).getCardBudget()) {
-            return false;
+            return -1;
         }
         currPlayer.setRehearsalTokens(currPlayer.getRehearsalTokens() + 1);
-        return true;
+        canRehearse = true;
+        return 0;
     }
 
     // main game loop
@@ -212,6 +224,7 @@ public class InputController {
             Enums.action action = args.action();
             String arg1 = args.arg1();
             String arg2 = args.arg2();
+            int result = -10;
 
             switch (action) {
                 case HELP:
@@ -235,7 +248,7 @@ public class InputController {
                     break;
                 case TAKE_ROLE:
                     try {
-                        int result = requestRole(Integer.parseInt(arg1));
+                        result = requestRole(Integer.parseInt(arg1));
                         switch (result) {
                             case 0:
                                 v.displayTakeRole(mod.getCurrentPlayer().getRole());
@@ -260,7 +273,7 @@ public class InputController {
                     break;
                 case MOVE:
                     try {
-                        int result = requestMove(Integer.parseInt(arg1));
+                        result = requestMove(Integer.parseInt(arg1));
                         switch (result) {
                             case 0:
                                 v.displayMove(mod.getCurrentPlayer().getRoom());
@@ -285,7 +298,7 @@ public class InputController {
                             break;
                         }
 
-                        int result = requestRankUp(Integer.parseInt(arg1), "credits".equals(arg2));
+                        result = requestRankUp(Integer.parseInt(arg1), "credits".equals(arg2));
                         switch (result) {
                             case 0:
                                 v.displayUpgrade(mod.getCurrentPlayer().getRank());
@@ -318,7 +331,7 @@ public class InputController {
                     }
                     break;
                 case ACT:
-                    int result = requestAct();
+                    result = requestAct();
                     switch (result) {
                         case 0:
                             v.displayAct(true);
@@ -329,20 +342,32 @@ public class InputController {
                         case -1:
                             v.displayAct(Enums.errno.FORBIDDEN_ACTION);
                             break;
+                        case -2:
+                            v.displayAct(Enums.errno.DUP_ACTION);
+                            break;
                         default:
                             System.err.println("fatal error");
                             System.exit(1);
                     }
                     break;
                 case REHEARSE:
-                    if (requestRehearse()) {
-                        v.displayRehearse(mod.getCurrentPlayer());
-                    } else {
-                        v.displayRehearse(Enums.errno.FORBIDDEN_ACTION);
+                    result = requestRehearse();
+                    switch (result) {
+                        case 0:
+                            v.displayRehearse(mod.getCurrentPlayer());
+                            break;
+                        case -1:
+                            v.displayRehearse(Enums.errno.FORBIDDEN_ACTION);
+                            break;
+                        case -2:
+                            v.displayRehearse(Enums.errno.DUP_ACTION);
+                            break;
                     }
                     break;
                 case PASS:
                     canMove = true;
+                    canAct = true;
+                    canRehearse = true;
                     pass = true;
                     break;
                 default:

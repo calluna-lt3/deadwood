@@ -370,7 +370,17 @@ public class ConsoleView implements View{
 
 
     public void displayAct(Enums.errno errno) {
-        System.out.println("You don't have a role");
+        switch (errno) {
+            case FORBIDDEN_ACTION:
+                System.out.println("You don't have a role");
+                break;
+            case DUP_ACTION:
+                System.out.println("You have already acted this turn");
+                break;
+            default:
+                System.err.println("fatal error");
+                System.exit(1);
+        }
     }
 }
 

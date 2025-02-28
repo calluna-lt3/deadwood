@@ -8,7 +8,8 @@ public class Enums {
         IN_ROLE,
         FORBIDDEN_ACTION,
         BAD_ROOM,
-        BAD_ARGS
+        BAD_ARGS,
+        DUP_ACTION,
     }
 
     public static enum action {
