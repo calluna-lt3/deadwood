@@ -2,8 +2,7 @@ public interface View {
     public void displayInit();
     public String getUserInput();
     public InVec getUserAction();
-    public String getPlayerName(int i);
-    public int getPlayerCount();
+    public InitInfo getPlayerInfo();
 
     // Display information
     public void displayHelp();

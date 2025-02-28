@@ -121,22 +121,25 @@ public class ConsoleView implements View{
     }
 
 
-    // TODO: consider returning a record of (int count, String[] players)
-    //       would make gui simpler (1 popup instead of many)
-    //       e.g. popup of 8 boxes for names, can infer count based on non-empty boxes
-    public int getPlayerCount() {
+    public InitInfo getPlayerInfo() {
         int count = -1;
         while (count < 2 || count > 8) {
-            System.out.println("Enter number of players (2-8):");
+            System.out.println("Enter player count (2-8)");
             try {
                 String input = getUserInput();
                 count = Integer.parseInt(input);
-            } catch (Exception e) {
-                System.out.println("Player count must be a number");
+            } catch (Exception ex) {
+                System.out.println("Player count must be number");
             }
         }
 
-        return count;
+        String[] names = new String[count];
+        for (int i=1; i<count+1; i++) {
+            System.out.println("Enter player " + i + "'s name");
+            names[i] = getUserInput();
+        }
+
+        return new InitInfo(count, names);
     }
 
 
