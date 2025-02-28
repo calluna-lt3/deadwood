@@ -354,11 +354,11 @@ public class InputController {
 
     private void initializeGame() {
         v.displayInit();
-        int playerCount = v.getPlayerCount();
-        mod = new Moderator(playerCount);
+        InitInfo info = v.getPlayerInfo();
+        mod = new Moderator(info.count());
 
 
-        mod.setTurn(random.nextInt(mod.getPlayerCount()));
+        mod.setTurn(random.nextInt(info.count()));
 
         int startCredits = 1;
         int startRank = 1;
@@ -380,9 +380,8 @@ public class InputController {
                 System.exit(1);
         }
 
-        for (int i=0; i<mod.getPlayerCount(); i++) {
-            String name = v.getPlayerName(i + 1);
-            mod.setPlayer(i, new Player(name, startCredits, startRank));
+        for (int i=0; i<info.count(); i++) {
+            mod.setPlayer(i, new Player(info.names()[i], startCredits, startRank));
         }
     }
 
