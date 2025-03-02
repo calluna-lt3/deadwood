@@ -110,12 +110,18 @@ public class ConsoleView implements View{
 
     private String getUserInput() {
         System.out.print("> ");
-        return sc.nextLine();
+        String input = "";
+        try {
+            input = sc.nextLine();
+        } catch (Exception ex) {
+            System.err.println("Terminated program");
+            System.exit(1);
+        }
+        return input;
     }
 
 
-    public String getPlayerName(int i) {
-        System.out.println("Enter name for player " + i);
+    public String getPlayerName(int i) { System.out.println("Enter name for player " + i);
         return getUserInput();
     }
 
