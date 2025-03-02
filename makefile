@@ -6,7 +6,7 @@ build:
 	$(CC) $(FILES) $(CFLAGS)
 
 run: build
-	java Main
+	java Deadwood
 
 clean:
 	rm -rf *.class

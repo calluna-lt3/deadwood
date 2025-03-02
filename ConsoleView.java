@@ -109,7 +109,7 @@ public class ConsoleView implements View{
     }
 
 
-    public String getUserInput() {
+    private String getUserInput() {
         System.out.print("> ");
         return sc.nextLine();
     }

@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class Main {
+public class Deadwood {
     public static void main(String[] args) {
         ConsoleView v = new ConsoleView();
         InputController ctrl = new InputController(v);

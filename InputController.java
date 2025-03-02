@@ -18,7 +18,7 @@ public class InputController {
 
 
     // Money is false, credits is true
-    public int requestRankUp(int rank, boolean currency)  {
+    private int requestRankUp(int rank, boolean currency)  {
         int[] money_vals = {4, 10, 18, 28, 40};
         int[] credit_vals = {5, 10, 15, 20, 25};
         Player currPlayer = mod.getCurrentPlayer();
@@ -60,7 +60,7 @@ public class InputController {
         return 0;
     }
 
-    public int requestMove(int room) {
+    private int requestMove(int room) {
         Player currPlayer = mod.getCurrentPlayer();
 
         // Check if player can move
@@ -78,7 +78,7 @@ public class InputController {
         return 0;
     }
 
-    public int requestRole(int role) {
+    private int requestRole(int role) {
         Player currPlayer = mod.getCurrentPlayer();
 
         // Check if currently in a role
@@ -102,7 +102,7 @@ public class InputController {
     }
 
     // needs to update shot markers
-    public int requestAct() {
+    private int requestAct() {
         Player currPlayer = mod.getCurrentPlayer();
 
         if (currPlayer.getRole() == null) {
@@ -182,7 +182,7 @@ public class InputController {
         return 0;
     }
 
-    public int requestRehearse()  {
+    private int requestRehearse()  {
         Player currPlayer = mod.getCurrentPlayer();
 
         if (canRehearse == false) {
@@ -424,7 +424,7 @@ public class InputController {
         assignScenes();
     }
 
-    public void assignScenes() {
+    private void assignScenes() {
         for (Room r : mod.board.getRooms()) {
             if (r instanceof InertRoom) {
                 continue;
@@ -433,7 +433,7 @@ public class InputController {
         }
     }
 
-    public void endDay() {
+    private void endDay() {
         mod.board.resetShotMarkers();
     }
 

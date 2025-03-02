@@ -1,6 +1,5 @@
 public interface View {
     public void displayInit();
-    public String getUserInput();
     public InVec getUserAction();
     public InitInfo getPlayerInfo();
 
