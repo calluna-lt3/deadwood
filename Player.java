@@ -23,11 +23,11 @@ public class Player {
     public Room getRoom() { return currSpace; }
     public void setRoom(Room room) { currSpace = room; }
 
-    public void setCredits(int credits) {this.credits = credits; }
-    public void setMoney(int money) {this.money = money; }
-    public void setRank(int rank) {this.rank = rank; }
-    public void setRole(Role role) {this.role = role; }
-    public void setRehearsalTokens(int tokens) {this.rehearsalTokens = tokens; }
+    public void setCredits(int credits) { this.credits = credits; }
+    public void setMoney(int money) { this.money = money; }
+    public void setRank(int rank) { this.rank = rank; }
+    public void setRole(Role role) { this.role = role; }
+    public void setRehearsalTokens(int tokens) { this.rehearsalTokens = tokens; }
 
     public String getName() { return name; }
     public int getCredits() { return credits; }

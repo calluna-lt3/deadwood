@@ -16,7 +16,7 @@ public class ConsoleView implements View{
 
         while (action == Enums.action.UNKNOWN) {
             input = getUserInput();
-            input_tokens = input.split(" ", 2);
+            input_tokens = input.trim().split(" ");
 
             if ("help".equals(input_tokens[0])) {
                 if (input_tokens.length != 1) {
@@ -61,7 +61,6 @@ public class ConsoleView implements View{
                     action = Enums.action.MOVE;
                 }
             } else if ("upgrade".equals(input_tokens[0])) {
-                input_tokens = input.split(" ");
                 if (input_tokens.length != 3) {
                     System.out.println("Usage: upgrade <rank> <money|credits>");
                 } else {
@@ -136,7 +135,7 @@ public class ConsoleView implements View{
         String[] names = new String[count];
         for (int i=1; i<count+1; i++) {
             System.out.println("Enter player " + i + "'s name");
-            names[i] = getUserInput();
+            names[i - 1] = getUserInput();
         }
 
         return new InitInfo(count, names);
@@ -167,15 +166,19 @@ public class ConsoleView implements View{
 
     public void displayWho(Player player) {
         String name = player.getName();
+        String rank = Integer.toString(player.getRank());
         String money = Integer.toString(player.getMoney());
         String credits = Integer.toString(player.getCredits());
+        String tokens = Integer.toString(player.getRehearsalTokens());
         String role = (player.getRole() != null) ? player.getRole().getName() : "none";
-        String line = (player.getRole() != null) ? player.getRole().getLine() : "";
+        String line = (player.getRole() != null) ? ". " + player.getRole().getLine() : "";
 
         System.out.println("Active player: " + name
-                           + "\n\tMoney: " + money
-                           + "\n\tCredits: " + credits
-                           + "\n\tJob: " + role + ", " + line);
+            + "\n\tRank: " + rank
+            + "\n\tMoney: " + money
+            + "\n\tCredits: " + credits
+            + "\n\tTokens: " + tokens
+            + "\n\tJob: " + role + line);
     }
 
 
@@ -200,8 +203,13 @@ public class ConsoleView implements View{
     }
 
 
-    public void displayRole(SoundStage ss) {
-        System.out.println("Roles:");
+    public void displayRoles(SoundStage ss) {
+        String budget = Integer.toString(ss.getCardBudget());
+        String tokens = Integer.toString(ss.getShotMarkers());
+        System.out.println("Card Budget: " + budget
+            + "\nRemaining Shots: " + tokens
+            + "\nRoles:");
+
 
         int numRoles = ss.getRoleCount();
 
@@ -249,7 +257,7 @@ public class ConsoleView implements View{
     public void displayTakeRole(Role role) {
         String name = role.getName();
         String line = role.getLine();
-        System.out.println("You took role " + name + ", " + line);
+        System.out.println("You took role " + name + ". " + line);
     }
 
 
@@ -272,6 +280,12 @@ public class ConsoleView implements View{
                 break;
             case BAD_ARGS:
                 System.out.println("Role index must be a number");
+                break;
+            case LEQ:
+                System.out.println("Your rank is not high enough for this role");
+                break;
+            case FORBIDDEN_ACTION:
+                System.out.println("This role is already taken");
                 break;
             default:
                 System.err.println("fatal error");
@@ -301,7 +315,7 @@ public class ConsoleView implements View{
 
     public void displayRehearse(Player player) {
         System.out.println("You now have " +
-            String.format("%d", player.getRehearsalTokens())
+            String.format("%d ", player.getRehearsalTokens())
             + "rehearsal tokens");
     }
 
@@ -365,7 +379,20 @@ public class ConsoleView implements View{
 
 
     public void displayRehearse(Enums.errno errno) {
-        System.out.println("You already have the maximum number rehearsal tokens for this role");
+        switch (errno) {
+            case DUP_ACTION:
+                System.out.println("You have already worked this turn");
+                break;
+            case FORBIDDEN_ACTION:
+                System.out.println("You already have the maximum number rehearsal tokens for this role");
+                break;
+            case IN_ROLE: // player not in role
+                System.out.println("You don't have a role");
+                break;
+            default:
+                System.err.println("fatal error");
+                System.exit(1);
+        }
     }
 
 
@@ -375,7 +402,7 @@ public class ConsoleView implements View{
                 System.out.println("You don't have a role");
                 break;
             case DUP_ACTION:
-                System.out.println("You have already acted this turn");
+                System.out.println("You have already worked this turn");
                 break;
             default:
                 System.err.println("fatal error");

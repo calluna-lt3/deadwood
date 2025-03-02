@@ -6,19 +6,18 @@ public class InputController {
     View v;
     Moderator mod;
     Random random;
-    boolean canMove, canAct, canRehearse;
+    boolean canMove, canWork;
 
     InputController(View v) {
         this.v = v;
         this.random = new Random();
         canMove = true;
-        canAct = true;
-        canRehearse = true;
+        canWork = true;
     }
 
 
     // Money is false, credits is true
-    private int requestRankUp(int rank, boolean currency)  {
+    private int requestUpgrade(int rank, boolean currency)  {
         int[] money_vals = {4, 10, 18, 28, 40};
         int[] credit_vals = {5, 10, 15, 20, 25};
         Player currPlayer = mod.getCurrentPlayer();
@@ -27,19 +26,19 @@ public class InputController {
             return -6;
         }
 
+        // Check if requested rank is within bounds
+        if (rank < 2 || rank > 6) {
+            return -3;
+        }
+
         // Check if rank is max
         if (currPlayer.getRank() == 6) {
             return -1;
         }
 
         // Check if requested rank is <= than current
-        if (currPlayer.getRank() > rank) {
+        if (currPlayer.getRank() >= rank) {
             return -2;
-        }
-
-        // Check if requested rank is within bounds
-        if (rank < 2 || rank > 6) {
-            return -3;
         }
 
         // Check currency count and subtract if sufficient
@@ -96,6 +95,16 @@ public class InputController {
             return -3;
         }
 
+        // Role already taken
+        if (((SoundStage) currPlayer.getRoom()).getRole(role).getTaken() == true) {
+            return -5;
+        }
+
+        // Rank not high enough
+        if (currPlayer.getRank() < ((SoundStage) currPlayer.getRoom()).getRole(role).getRank()) {
+            return -4;
+        }
+
         ((SoundStage) currPlayer.getRoom()).getRole(role).setTaken(true);
         currPlayer.setRole(((SoundStage) currPlayer.getRoom()).getRole(role));
         return 0;
@@ -109,19 +118,17 @@ public class InputController {
             return -1;
         }
 
-        if (canAct == false) {
+        if (canWork == false) {
             return -2;
         }
 
         // Failure case
-        int dieResult = random.nextInt(6);
+        int dieResult = random.nextInt(6) + 1;
         v.displayDiceRolls(dieResult);
         if (dieResult + currPlayer.getRehearsalTokens() < ((SoundStage) currPlayer.getRoom()).getCardBudget()) {
             if (currPlayer.getRole().getStarring() == false) {
                 currPlayer.setMoney(currPlayer.getMoney() + 1);
             }
-
-            canAct = false;
             return 1;
         }
 
@@ -160,7 +167,7 @@ public class InputController {
                 int budget = ((SoundStage) currPlayer.getRoom()).getCardBudget();
                 int[] diceResults = new int[budget];
                 for (int i=0; i<budget; i++) {
-                    diceResults[i] = random.nextInt(6);
+                    diceResults[i] = random.nextInt(6) + 1;
                 }
                 v.displayDiceRolls(diceResults);
 
@@ -175,17 +182,23 @@ public class InputController {
                 }
             }
 
+            currPlayer.setRole(null);
+            currPlayer.setRehearsalTokens(0);
+            mod.decrementCardCount();
             ((SoundStage) currPlayer.getRoom()).setCard(null);
         }
-
-        canAct = false;
+        
         return 0;
     }
 
     private int requestRehearse()  {
         Player currPlayer = mod.getCurrentPlayer();
 
-        if (canRehearse == false) {
+        if(currPlayer.getRole() == null) {
+            return -3;
+        }
+
+        if (canWork == false) {
             return -2;
         }
 
@@ -193,7 +206,6 @@ public class InputController {
             return -1;
         }
         currPlayer.setRehearsalTokens(currPlayer.getRehearsalTokens() + 1);
-        canRehearse = true;
         return 0;
     }
 
@@ -206,8 +218,6 @@ public class InputController {
                 takeTurn();
                 mod.setTurn(mod.getTurn() + 1);
             }
-
-            endDay();
         }
 
         endGame();
@@ -224,7 +234,7 @@ public class InputController {
             Enums.action action = args.action();
             String arg1 = args.arg1();
             String arg2 = args.arg2();
-            int result = -10;
+            int result;
 
             switch (action) {
                 case HELP:
@@ -243,7 +253,7 @@ public class InputController {
                     if (mod.getCurrentPlayer().getRoom() instanceof InertRoom) {
                         v.displayRole(Enums.errno.BAD_ROOM);
                     } else {
-                        v.displayRole((SoundStage) mod.getCurrentPlayer().getRoom());
+                        v.displayRoles((SoundStage) mod.getCurrentPlayer().getRoom());
                     }
                     break;
                 case TAKE_ROLE:
@@ -262,13 +272,19 @@ public class InputController {
                             case -3:
                                 v.displayTakeRole(Enums.errno.OOB);
                                 break;
+                            case -4:
+                                v.displayTakeRole(Enums.errno.LEQ);
+                                break;
+                            case -5:
+                                v.displayTakeRole(Enums.errno.FORBIDDEN_ACTION);
+                                break;
                             default:
                                 System.err.println("fatal error");
                                 System.exit(1);
                         }
                     }
                     catch (NumberFormatException e) {
-                        v.displayRole(Enums.errno.BAD_ARGS);
+                        v.displayTakeRole(Enums.errno.BAD_ARGS);
                     }
                     break;
                 case MOVE:
@@ -277,12 +293,14 @@ public class InputController {
                         switch (result) {
                             case 0:
                                 v.displayMove(mod.getCurrentPlayer().getRoom());
+                                canMove = false;
                                 break;
                             case -1:
                                 v.displayMove(Enums.errno.FORBIDDEN_ACTION);
                                 break;
                             case -2:
                                 v.displayMove(Enums.errno.OOB);
+                                break;
                             default:
                                 System.err.println("fatal error");
                                 System.exit(1);
@@ -298,7 +316,7 @@ public class InputController {
                             break;
                         }
 
-                        result = requestRankUp(Integer.parseInt(arg1), "credits".equals(arg2));
+                        result = requestUpgrade(Integer.parseInt(arg1), "credits".equals(arg2));
                         switch (result) {
                             case 0:
                                 v.displayUpgrade(mod.getCurrentPlayer().getRank());
@@ -335,9 +353,11 @@ public class InputController {
                     switch (result) {
                         case 0:
                             v.displayAct(true);
+                            canWork = false;
                             break;
                         case 1:
                             v.displayAct(false);
+                            canWork = false;
                             break;
                         case -1:
                             v.displayAct(Enums.errno.FORBIDDEN_ACTION);
@@ -355,6 +375,7 @@ public class InputController {
                     switch (result) {
                         case 0:
                             v.displayRehearse(mod.getCurrentPlayer());
+                            canWork = false;
                             break;
                         case -1:
                             v.displayRehearse(Enums.errno.FORBIDDEN_ACTION);
@@ -362,12 +383,17 @@ public class InputController {
                         case -2:
                             v.displayRehearse(Enums.errno.DUP_ACTION);
                             break;
+                        case -3: // player doesnt have a role
+                            v.displayRehearse(Enums.errno.IN_ROLE);
+                            break;
+                        default:
+                            System.err.println("fatal error");
+                            System.exit(1);
                     }
                     break;
                 case PASS:
                     canMove = true;
-                    canAct = true;
-                    canRehearse = true;
+                    canWork = true;
                     pass = true;
                     break;
                 default:
@@ -391,6 +417,8 @@ public class InputController {
             case 2: case 3:
                 mod.setLastDay(3);
                 break;
+            case 4:
+                break;
             case 5:
                 startCredits = 2;
                 break;
@@ -412,15 +440,23 @@ public class InputController {
 
     private void startDay() {
         mod.setDay(mod.getDay() + 1);
+        mod.board.resetShotMarkers();
 
         Room trailer = null;
         for (Room r : mod.getBoard().getRooms()) {
             if (r.getName().equals("trailer")) {
+
                 trailer = r;
                 break;
             }
         }
-        for (Player p : mod.getPlayers()) p.setRoom(trailer);
+
+        for (Player p : mod.getPlayers()) {
+            p.setRehearsalTokens(0);
+            p.setRoom(trailer);
+            p.setRole(null);
+        }
+
         assignScenes();
     }
 
@@ -433,9 +469,6 @@ public class InputController {
         }
     }
 
-    private void endDay() {
-        mod.board.resetShotMarkers();
-    }
 
     // calculate scores, determines winner, etc.
     private void endGame() {

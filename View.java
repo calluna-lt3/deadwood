@@ -7,7 +7,7 @@ public interface View {
     public void displayHelp();
     public void displayWho(Player p);
     public void displayLocations(Player activePlayer, Player[] players);
-    public void displayRole(SoundStage ss);
+    public void displayRoles(SoundStage ss);
     public void displayRole(Enums.errno errno);
 
     // Infallible actions
