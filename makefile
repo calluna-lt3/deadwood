@@ -1,12 +1,30 @@
+CMD    = java
 CC     = javac
-CFLAGS =
-FILES  = *.java
+NAME   = Deadwood
+BIN    = ./bin
+FILES  = ./src/*.java
+CONFIG = deadwood.config
 
-build:
-	$(CC) $(FILES) $(CFLAGS)
+MFLAGS = --module-path ./include/ --add-modules
+MODS   = javafx.controls
 
-run: build
-	java Deadwood
+null:
+	echo "read the makefile!!" &>/dev/null
+
+build-gui:
+	echo "GUI=1" > $(CONFIG)
+	$(CC) $(FILES) -d $(BIN) $(MFLAGS) $(MODS)
+
+run-gui: build-gui
+	$(CMD) -classpath $(BIN) $(NAME) $(MFLAGS) $(MODS)
+
+
+build-tui:
+	echo "GUI=0" > $(CONFIG)
+	$(CC) $(FILES) -d $(BIN)
+
+run-tui: build-tui
+	$(CMD) -classpath $(BIN) $(NAME)
 
 clean:
-	rm -rf *.class
+	rm -f $(BIN)/*.class
