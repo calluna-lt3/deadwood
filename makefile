@@ -13,15 +13,15 @@ null:
 
 build-gui:
 	echo "GUI=1" > $(CONFIG)
-	$(CC) $(FILES) -d $(BIN) $(MFLAGS) $(MODS)
+	$(CC) $(MFLAGS) $(MODS) -d $(BIN) $(FILES) 
 
 run-gui: build-gui
-	$(CMD) -classpath $(BIN) $(NAME) $(MFLAGS) $(MODS)
+	$(CMD) $(MFLAGS) $(MODS) -classpath $(BIN) $(NAME)
 
 
 build-tui:
 	echo "GUI=0" > $(CONFIG)
-	$(CC) $(FILES) -d $(BIN)
+	$(CC) -d $(BIN) $(FILES)
 
 run-tui: build-tui
 	$(CMD) -classpath $(BIN) $(NAME)
