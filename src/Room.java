@@ -5,6 +5,7 @@ public abstract class Room {
     String name;
     ArrayList<String> adjacentRoomsStr;
     ArrayList<Room> adjacentRooms;
+    DefaultPos dPos;
 
     public String getName() {
         return name;

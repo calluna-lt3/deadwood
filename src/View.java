@@ -3,12 +3,14 @@ public interface View {
     public InVec getUserAction();
     public InitInfo getPlayerInfo();
 
+
     // Display information
     public void displayHelp();
     public void displayWho(Player p);
     public void displayLocations(Player activePlayer, Player[] players);
     public void displayRoles(SoundStage ss);
-    public void displayRole(Enums.errno errno);
+    public void displayRoles(Enums.errno errno);
+    public void displayRooms(Room room);
 
     // Infallible actions
     // this method signature is bad, but its the easiest way to implement this with for now

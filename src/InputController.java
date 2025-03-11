@@ -6,13 +6,14 @@ public class InputController {
     View v;
     Moderator mod;
     Random random;
-    boolean canMove, canWork;
+    boolean canMove, canWork, pass;
 
     InputController(View v) {
         this.v = v;
         this.random = new Random();
         canMove = true;
         canWork = true;
+        pass = false;
     }
 
 
@@ -68,6 +69,7 @@ public class InputController {
         }
 
         // Check if room index is out of bounds
+        System.out.println(currPlayer);
         if (room < 1 || room > currPlayer.getRoom().getAdjacentCount()) {
             return -2;
         }
@@ -187,7 +189,7 @@ public class InputController {
             mod.decrementCardCount();
             ((SoundStage) currPlayer.getRoom()).setCard(null);
         }
-        
+
         return 0;
     }
 
@@ -209,202 +211,238 @@ public class InputController {
         return 0;
     }
 
-    // main game loop
+    // start game (console/gui)
     public void run() {
         initializeGame();
-        while (mod.getDay() <= mod.getLastDay()) {
-            startDay();
-            while (mod.getCardCount() > 1) {
-                takeTurn();
-                mod.setTurn(mod.getTurn() + 1);
-            }
-        }
 
-        endGame();
+        if(v instanceof GUIView) {
+            startDay();
+        } else {
+            while (mod.getDay() <= mod.getLastDay()) {
+                startDay();
+                while (mod.getCardCount() > 1) {
+                    takeTurn();
+                    mod.setTurn(mod.getTurn() + 1);
+                }
+                mod.setDay(mod.getDay() + 1);
+            }
+            endGame();
+        }
     }
 
+
+    public void processAction(InVec args) {
+        Enums.action action = args.action();
+        String arg1 = args.arg1();
+        String arg2 = args.arg2();
+        System.out.println(args);
+
+        int result;
+        switch (action) {
+            case HELP:
+                System.out.println("got processAction HELP");
+                v.displayHelp();
+                break;
+            case WHO:
+                v.displayWho(mod.getCurrentPlayer());
+                break;
+            case LOCATION:
+                v.displayLocations(mod.getCurrentPlayer(), mod.getPlayers());
+                break;
+            case ROOMS:
+                v.displayRooms(mod.getCurrentPlayer().getRoom());
+                break;
+            case ROLES:
+                if (mod.getCurrentPlayer().getRoom() instanceof InertRoom) {
+                    v.displayRoles(Enums.errno.BAD_ROOM);
+                } else {
+                    v.displayRoles((SoundStage) mod.getCurrentPlayer().getRoom());
+                }
+                break;
+            case TAKE_ROLE:
+                try {
+                    result = requestRole(Integer.parseInt(arg1));
+                    switch (result) {
+                        case 0:
+                            v.displayTakeRole(mod.getCurrentPlayer().getRole());
+                            break;
+                        case -1:
+                            v.displayTakeRole(Enums.errno.IN_ROLE);
+                            break;
+                        case -2:
+                            v.displayTakeRole(Enums.errno.BAD_ROOM);
+                            break;
+                        case -3:
+                            v.displayTakeRole(Enums.errno.OOB);
+                            break;
+                        case -4:
+                            v.displayTakeRole(Enums.errno.LEQ);
+                            break;
+                        case -5:
+                            v.displayTakeRole(Enums.errno.FORBIDDEN_ACTION);
+                            break;
+                        default:
+                            System.err.println("fatal error");
+                            System.exit(1);
+                    }
+                }
+                catch (NumberFormatException e) {
+                    v.displayTakeRole(Enums.errno.BAD_ARGS);
+                }
+                break;
+            case MOVE:
+                try {
+                    result = requestMove(Integer.parseInt(arg1));
+                    switch (result) {
+                        case 0:
+                            v.displayMove(mod.getCurrentPlayer().getRoom());
+                            canMove = false;
+                            break;
+                        case -1:
+                            v.displayMove(Enums.errno.FORBIDDEN_ACTION);
+                            break;
+                        case -2:
+                            v.displayMove(Enums.errno.OOB);
+                            break;
+                        default:
+                            System.err.println("fatal error");
+                            System.exit(1);
+                    }
+                } catch (Exception e) {
+                    v.displayMove(Enums.errno.BAD_ARGS);
+                }
+                break;
+            case UPGRADE:
+                try {
+                    if (!("money".equals(arg2) || "credits".equals(arg2))) {
+                        v.displayUpgrade(Enums.errno.BAD_ARGS);
+                        break;
+                    }
+
+                    result = requestUpgrade(Integer.parseInt(arg1), "credits".equals(arg2));
+                    switch (result) {
+                        case 0:
+                            v.displayUpgrade(mod.getCurrentPlayer().getRank());
+                            break;
+                        case -1:
+                            v.displayUpgrade(Enums.errno.MAX_RANK);
+                            break;
+                        case -2:
+                            v.displayUpgrade(Enums.errno.LEQ);
+                            break;
+                        case -3:
+                            v.displayUpgrade(Enums.errno.OOB);
+                            break;
+                        case -4:
+                            v.displayUpgrade(Enums.errno.NO_CREDITS);
+                            break;
+                        case -5:
+                            v.displayUpgrade(Enums.errno.NO_MONEY);
+                            break;
+                        case -6:
+                            v.displayUpgrade(Enums.errno.BAD_ROOM);
+                            break;
+                        default:
+                            System.err.println("fatal error");
+                            System.exit(1);
+                    }
+                }
+                catch (NumberFormatException e) {
+                    v.displayUpgrade(Enums.errno.BAD_ARGS);
+                }
+                break;
+            case ACT:
+                result = requestAct();
+                switch (result) {
+                    case 0:
+                        v.displayAct(true);
+                        canWork = false;
+                        break;
+                    case 1:
+                        v.displayAct(false);
+                        canWork = false;
+                        break;
+                    case -1:
+                        v.displayAct(Enums.errno.FORBIDDEN_ACTION);
+                        break;
+                    case -2:
+                        v.displayAct(Enums.errno.DUP_ACTION);
+                        break;
+                    default:
+                        System.err.println("fatal error");
+                        System.exit(1);
+                }
+                break;
+            case REHEARSE:
+                result = requestRehearse();
+                switch (result) {
+                    case 0:
+                        v.displayRehearse(mod.getCurrentPlayer());
+                        canWork = false;
+                        break;
+                    case -1:
+                        v.displayRehearse(Enums.errno.FORBIDDEN_ACTION);
+                        break;
+                    case -2:
+                        v.displayRehearse(Enums.errno.DUP_ACTION);
+                        break;
+                    case -3: // player doesnt have a role
+                        v.displayRehearse(Enums.errno.IN_ROLE);
+                        break;
+                    default:
+                        System.err.println("fatal error");
+                        System.exit(1);
+                }
+                break;
+            case PASS:
+                canMove = true;
+                canWork = true;
+                pass = true;
+                break;
+            default:
+                System.err.println("fatal error");
+                System.exit(1);
+        }
+
+        if (!(v instanceof GUIView)) return;
+
+        if (pass == true) {
+            mod.setTurn(mod.getTurn() + 1);
+
+            if (mod.getCardCount() < 2) {
+                mod.setDay(mod.getDay() + 1);
+
+                if (mod.getDay() > mod.getLastDay()) {
+                    endGame();
+                    return;
+                }
+                startDay();
+            }
+        }
+    }
+
+
+    // console view turn handler
     private void takeTurn() {
         if (mod.getCurrentPlayer().getRole() != null) {
             canMove = false;
         }
 
-        boolean pass = false;
+        pass = false;
         while (pass == false) {
             InVec args = v.getUserAction();
-            Enums.action action = args.action();
-            String arg1 = args.arg1();
-            String arg2 = args.arg2();
-            int result;
-
-            switch (action) {
-                case HELP:
-                    v.displayHelp();
-                    break;
-                case WHO:
-                    v.displayWho(mod.getCurrentPlayer());
-                    break;
-                case LOCATION:
-                    v.displayLocations(mod.getCurrentPlayer(), mod.getPlayers());
-                    break;
-                case ROOMS: // ONLY IN CONSOLE VIEW
-                    ((ConsoleView) v).displayRooms(mod.getCurrentPlayer().getRoom());
-                    break;
-                case ROLES:
-                    if (mod.getCurrentPlayer().getRoom() instanceof InertRoom) {
-                        v.displayRole(Enums.errno.BAD_ROOM);
-                    } else {
-                        v.displayRoles((SoundStage) mod.getCurrentPlayer().getRoom());
-                    }
-                    break;
-                case TAKE_ROLE:
-                    try {
-                        result = requestRole(Integer.parseInt(arg1));
-                        switch (result) {
-                            case 0:
-                                v.displayTakeRole(mod.getCurrentPlayer().getRole());
-                                break;
-                            case -1:
-                                v.displayTakeRole(Enums.errno.IN_ROLE);
-                                break;
-                            case -2:
-                                v.displayTakeRole(Enums.errno.BAD_ROOM);
-                                break;
-                            case -3:
-                                v.displayTakeRole(Enums.errno.OOB);
-                                break;
-                            case -4:
-                                v.displayTakeRole(Enums.errno.LEQ);
-                                break;
-                            case -5:
-                                v.displayTakeRole(Enums.errno.FORBIDDEN_ACTION);
-                                break;
-                            default:
-                                System.err.println("fatal error");
-                                System.exit(1);
-                        }
-                    }
-                    catch (NumberFormatException e) {
-                        v.displayTakeRole(Enums.errno.BAD_ARGS);
-                    }
-                    break;
-                case MOVE:
-                    try {
-                        result = requestMove(Integer.parseInt(arg1));
-                        switch (result) {
-                            case 0:
-                                v.displayMove(mod.getCurrentPlayer().getRoom());
-                                canMove = false;
-                                break;
-                            case -1:
-                                v.displayMove(Enums.errno.FORBIDDEN_ACTION);
-                                break;
-                            case -2:
-                                v.displayMove(Enums.errno.OOB);
-                                break;
-                            default:
-                                System.err.println("fatal error");
-                                System.exit(1);
-                        }
-                    } catch (Exception e) {
-                        v.displayMove(Enums.errno.BAD_ARGS);
-                    }
-                    break;
-                case UPGRADE:
-                    try {
-                        if (!("money".equals(arg2) || "credits".equals(arg2))) {
-                            v.displayUpgrade(Enums.errno.BAD_ARGS);
-                            break;
-                        }
-
-                        result = requestUpgrade(Integer.parseInt(arg1), "credits".equals(arg2));
-                        switch (result) {
-                            case 0:
-                                v.displayUpgrade(mod.getCurrentPlayer().getRank());
-                                break;
-                            case -1:
-                                v.displayUpgrade(Enums.errno.MAX_RANK);
-                                break;
-                            case -2:
-                                v.displayUpgrade(Enums.errno.LEQ);
-                                break;
-                            case -3:
-                                v.displayUpgrade(Enums.errno.OOB);
-                                break;
-                            case -4:
-                                v.displayUpgrade(Enums.errno.NO_CREDITS);
-                                break;
-                            case -5:
-                                v.displayUpgrade(Enums.errno.NO_MONEY);
-                                break;
-                            case -6:
-                                v.displayUpgrade(Enums.errno.BAD_ROOM);
-                                break;
-                            default:
-                                System.err.println("fatal error");
-                                System.exit(1);
-                        }
-                    }
-                    catch (NumberFormatException e) {
-                        v.displayUpgrade(Enums.errno.BAD_ARGS);
-                    }
-                    break;
-                case ACT:
-                    result = requestAct();
-                    switch (result) {
-                        case 0:
-                            v.displayAct(true);
-                            canWork = false;
-                            break;
-                        case 1:
-                            v.displayAct(false);
-                            canWork = false;
-                            break;
-                        case -1:
-                            v.displayAct(Enums.errno.FORBIDDEN_ACTION);
-                            break;
-                        case -2:
-                            v.displayAct(Enums.errno.DUP_ACTION);
-                            break;
-                        default:
-                            System.err.println("fatal error");
-                            System.exit(1);
-                    }
-                    break;
-                case REHEARSE:
-                    result = requestRehearse();
-                    switch (result) {
-                        case 0:
-                            v.displayRehearse(mod.getCurrentPlayer());
-                            canWork = false;
-                            break;
-                        case -1:
-                            v.displayRehearse(Enums.errno.FORBIDDEN_ACTION);
-                            break;
-                        case -2:
-                            v.displayRehearse(Enums.errno.DUP_ACTION);
-                            break;
-                        case -3: // player doesnt have a role
-                            v.displayRehearse(Enums.errno.IN_ROLE);
-                            break;
-                        default:
-                            System.err.println("fatal error");
-                            System.exit(1);
-                    }
-                    break;
-                case PASS:
-                    canMove = true;
-                    canWork = true;
-                    pass = true;
-                    break;
-                default:
-                    System.err.println("fatal error");
-                    System.exit(1);
-            }
+            processAction(args);
         }
     }
 
+
     private void initializeGame() {
         v.displayInit();
+        if (v instanceof GUIView) {
+            ((GUIView)v).setController(this);
+            ((GUIView)v).setVisible(true);
+        }
+
         InitInfo info = v.getPlayerInfo();
         mod = new Moderator(info.count());
 
@@ -439,7 +477,6 @@ public class InputController {
     }
 
     private void startDay() {
-        mod.setDay(mod.getDay() + 1);
         mod.board.resetShotMarkers();
 
         Room trailer = null;
@@ -465,6 +502,7 @@ public class InputController {
             if (r instanceof InertRoom) {
                 continue;
             }
+
             ((SoundStage) r).setCard(mod.deck.draw());
         }
     }

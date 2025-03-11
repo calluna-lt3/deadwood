@@ -17,16 +17,18 @@ public class XMLParser {
     private String cardsPath;
     private NodeList cardList;
     private NodeList roomList;
+    private static final String defaultBoardPath = "./data/xml/board.xml";
+    private static final String defaultCardsPath = "./data/xml/cards.xml";
+
     public enum type {
         CARDS,
         BOARD,
         ALL,
     }
 
-
     XMLParser(type type) {
-        this.boardPath = "../xml/board.xml";
-        this.cardsPath = "../xml/cards.xml";
+        this.boardPath = defaultBoardPath;
+        this.cardsPath = defaultCardsPath;
         this.init(type);
     }
 

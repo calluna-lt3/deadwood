@@ -305,7 +305,7 @@ public class ConsoleView implements View{
     }
 
 
-    public void displayRole(Enums.errno errno) {
+    public void displayRoles(Enums.errno errno) {
         System.out.println("This room doesn't have any roles");
     }
 

@@ -6,7 +6,7 @@ public class Board {
     public Board() {
         XMLParser xmlp = new XMLParser(XMLParser.type.BOARD);
         rooms = xmlp.getRooms();
-        calculateAdjacency();
+        initializeRooms();
     }
 
     public ArrayList<Room> getRooms() {
@@ -21,8 +21,37 @@ public class Board {
         }
     }
 
-    private void calculateAdjacency() {
+    private void initializeRooms() {
         for (Room r : rooms) {
+
+            // TODO: find default positions of each room
+            if ("Bank".equals(r.getName())) {
+                r.dPos = new DefaultPos(0, 0);
+            } else if ("Church".equals(r.getName())) {
+                r.dPos = new DefaultPos(0, 0);
+            } else if ("General Store".equals(r.getName())) {
+                r.dPos = new DefaultPos(0, 0);
+            } else if ("Hotel".equals(r.getName())) {
+                r.dPos = new DefaultPos(0, 0);
+            } else if ("Jail".equals(r.getName())) {
+                r.dPos = new DefaultPos(0, 0);
+            } else if ("Main Street".equals(r.getName())) {
+                r.dPos = new DefaultPos(0, 0);
+            } else if ("Ranch".equals(r.getName())) {
+                r.dPos = new DefaultPos(0, 0);
+            } else if ("Saloon".equals(r.getName())) {
+                r.dPos = new DefaultPos(0, 0);
+            } else if ("Secret Hideout".equals(r.getName())) {
+                r.dPos = new DefaultPos(0, 0);
+            } else if ("Train Station".equals(r.getName())) {
+                r.dPos = new DefaultPos(0, 0);
+            } else if ("office".equals(r.getName())) {
+                r.dPos = new DefaultPos(0, 0);
+            } else if ("trailer".equals(r.getName())) {
+                r.dPos = new DefaultPos(0, 0);
+            }
+
+
             ArrayList<Room> adj = new ArrayList<Room>();
 
             for (String s : r.getAdjStrings()) {
