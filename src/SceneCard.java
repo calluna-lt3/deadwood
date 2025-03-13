@@ -7,11 +7,12 @@ public class SceneCard {
     int budget;
     ArrayList<Role> roles;
     boolean revealed;
+    String img;
 
-
-    SceneCard(String name, String description, int number, int budget, ArrayList<Role> roles) {
+    SceneCard(String name, String description, String img, int number, int budget, ArrayList<Role> roles) {
         this.name = name;
         this.description = description;
+        this.img = img;
         this.number = number;
         this.budget = budget;
         this.roles = roles;

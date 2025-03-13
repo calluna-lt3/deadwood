@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 
-
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
@@ -9,8 +8,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
-import java.io.File;
-import java.sql.Array;
 
 public class XMLParser {
     private String boardPath;
@@ -121,7 +118,7 @@ public class XMLParser {
         return rooms;
     }
 
-    // TODO: get image
+
     public ArrayList<SceneCard> getSceneCards() {
         ArrayList<SceneCard> cards = new ArrayList<SceneCard>();
 
@@ -133,6 +130,7 @@ public class XMLParser {
             int cardNumber = 0;
 
             String cardName = card.getAttributes().getNamedItem("name").getNodeValue();
+            String img = card.getAttributes().getNamedItem("img").getNodeValue();
             int cardBudget = Integer.parseInt(card.getAttributes().getNamedItem("budget").getNodeValue());
 
             NodeList cardChildren = card.getChildNodes();
@@ -143,7 +141,7 @@ public class XMLParser {
                 // gets scene info
                 if("scene".equals(cardSub.getNodeName())) {
                     cardNumber = Integer.parseInt(cardSub.getAttributes().getNamedItem("number").getNodeValue());
-                    cardDescription = cardSub.getTextContent(); // TODO: format text (THIS IS A PAIN)     ■ TODO: format text (THIS IS A PAIN)
+                    cardDescription = cardSub.getTextContent();
                 }
 
                 // gets role info
@@ -152,7 +150,7 @@ public class XMLParser {
                 }
             }
 
-            cards.add(new SceneCard(cardName, cardDescription, cardNumber, cardBudget, roles));
+            cards.add(new SceneCard(cardName, cardDescription, img, cardNumber, cardBudget, roles));
         }
 
         return cards;
@@ -160,11 +158,12 @@ public class XMLParser {
 
 
     private Role parsePart(Node part, boolean card) {
+        DisplayInfo dInfo = null;
         String roleLine = "";
         String roleName = part.getAttributes().getNamedItem("name").getNodeValue();
         int roleLevel = Integer.parseInt(part.getAttributes().getNamedItem("level").getNodeValue());
 
-        // TODO: get area info
+
         NodeList partChildren = part.getChildNodes();
         for (int k=0; k<partChildren.getLength(); k++) {
             Node roleSub = partChildren.item(k);
@@ -172,9 +171,17 @@ public class XMLParser {
             if ("line".equals(roleSub.getNodeName())) {
                 roleLine = roleSub.getTextContent();
             }
+
+            if ("area".equals(roleSub.getNodeName())) {
+                int x = Integer.parseInt(roleSub.getAttributes().getNamedItem("x").getNodeValue());
+                int y = Integer.parseInt(roleSub.getAttributes().getNamedItem("y").getNodeValue());
+                int h = Integer.parseInt(roleSub.getAttributes().getNamedItem("h").getNodeValue());
+                int w = Integer.parseInt(roleSub.getAttributes().getNamedItem("w").getNodeValue());
+                dInfo = new DisplayInfo(x, y, h, w);
+            }
         }
 
-        return new Role(roleName, roleLine, roleLevel, card);
+        return new Role(roleName, roleLine, roleLevel, card, dInfo);
     }
 
 
@@ -182,7 +189,9 @@ public class XMLParser {
     private SoundStage parseSet(Node set) {
         NodeList setChildren = set.getChildNodes();
 
-        ArrayList<String> adjRooms = new ArrayList<String>(0);
+        ArrayList<DisplayInfo> takeInfo = new ArrayList<DisplayInfo>();
+        DisplayInfo dInfo = null;
+        ArrayList<String> adjRooms = new ArrayList<String>();
         ArrayList<Role> roles = new ArrayList<Role>();
         int shotMarkers = 0;
 
@@ -197,9 +206,13 @@ public class XMLParser {
                 adjRooms = parseNeighbors(setSub);
             }
 
-
-            // TODO: get area info
-
+            if ("area".equals(setSub.getNodeName())) {
+                int x = Integer.parseInt(setSub.getAttributes().getNamedItem("x").getNodeValue());
+                int y = Integer.parseInt(setSub.getAttributes().getNamedItem("y").getNodeValue());
+                int h = Integer.parseInt(setSub.getAttributes().getNamedItem("h").getNodeValue());
+                int w = Integer.parseInt(setSub.getAttributes().getNamedItem("w").getNodeValue());
+                dInfo = new DisplayInfo(x, y, h, w);
+            }
 
             // get shotmarkers
             if("takes".equals(setSub.getNodeName())) {
@@ -210,6 +223,21 @@ public class XMLParser {
 
                     if("take".equals(takesSub.getNodeName())) {
                         shotMarkers++;
+
+                        NodeList takeChildren = takesSub.getChildNodes();
+                        for (int k=0; k<takeChildren.getLength(); k++) {
+                            Node takeSub = takeChildren.item(k);
+
+                            if ("area".equals(takeSub.getNodeName())) {
+                                int x = Integer.parseInt(takeSub.getAttributes().getNamedItem("x").getNodeValue());
+                                int y = Integer.parseInt(takeSub.getAttributes().getNamedItem("y").getNodeValue());
+                                int h = Integer.parseInt(takeSub.getAttributes().getNamedItem("h").getNodeValue());
+                                int w = Integer.parseInt(takeSub.getAttributes().getNamedItem("w").getNodeValue());
+                                takeInfo.add(new DisplayInfo(x, y, h, w));
+                            }
+
+                        }
+
                     }
                 }
             }
@@ -228,7 +256,7 @@ public class XMLParser {
             }
         }
 
-        return new SoundStage(name, adjRooms, roles, shotMarkers);
+        return new SoundStage(name, adjRooms, roles, shotMarkers, dInfo, takeInfo);
     }
 
 
@@ -251,6 +279,7 @@ public class XMLParser {
     // TODO: parse upgrades
     private Room parseOffice(Node office) {
         ArrayList<String> adjRooms = new ArrayList<String>(0);
+        DisplayInfo dInfo = null;
         final String name = "office";
 
         NodeList officeChildren = office.getChildNodes();
@@ -261,15 +290,22 @@ public class XMLParser {
                 adjRooms = parseNeighbors(officeSub);
             }
 
+            if ("area".equals(officeSub.getNodeName())) {
+                int x = Integer.parseInt(officeSub.getAttributes().getNamedItem("x").getNodeValue());
+                int y = Integer.parseInt(officeSub.getAttributes().getNamedItem("y").getNodeValue());
+                int h = Integer.parseInt(officeSub.getAttributes().getNamedItem("h").getNodeValue());
+                int w = Integer.parseInt(officeSub.getAttributes().getNamedItem("w").getNodeValue());
+                dInfo = new DisplayInfo(x, y, h, w);
+            }
         }
 
-        return new InertRoom(name, adjRooms, true);
+        return new InertRoom(name, adjRooms, true, dInfo);
     }
 
 
-    // TODO: parse area
     private Room parseTrailer(Node trailer) {
         ArrayList<String> adjRooms = new ArrayList<String>(0);
+        DisplayInfo dInfo = null;
         final String name = "trailer";
 
         NodeList trailerChildren = trailer.getChildNodes();
@@ -280,8 +316,15 @@ public class XMLParser {
                 adjRooms = parseNeighbors(trailerSub);
             }
 
+            if ("area".equals(trailerSub.getNodeName())) {
+                int x = Integer.parseInt(trailerSub.getAttributes().getNamedItem("x").getNodeValue());
+                int y = Integer.parseInt(trailerSub.getAttributes().getNamedItem("y").getNodeValue());
+                int h = Integer.parseInt(trailerSub.getAttributes().getNamedItem("h").getNodeValue());
+                int w = Integer.parseInt(trailerSub.getAttributes().getNamedItem("w").getNodeValue());
+                dInfo = new DisplayInfo(x, y, h, w);
+            }
         }
 
-        return new InertRoom(name, adjRooms, false);
+        return new InertRoom(name, adjRooms, false, dInfo);
     }
 }

@@ -6,6 +6,7 @@ public abstract class Room {
     ArrayList<String> adjacentRoomsStr;
     ArrayList<Room> adjacentRooms;
     DefaultPos dPos;
+    DisplayInfo dInfo;
 
     public String getName() {
         return name;

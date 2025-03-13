@@ -5,14 +5,19 @@ public class SoundStage extends Room {
     ArrayList<Role> roles;
     int maxShotMarkers; // needed for restarting day
     int shotMarkers;
+    ArrayList<DisplayInfo> takeInfo = new ArrayList<DisplayInfo>();
 
 
-    public SoundStage(String name, ArrayList<String> adjacentRoomsStr, ArrayList<Role> roles, int shotMarkers) {
+    // ;;;;;;;;;
+    public SoundStage(String name, ArrayList<String> adjacentRoomsStr, ArrayList<Role> roles,
+                      int shotMarkers, DisplayInfo dInfo, ArrayList<DisplayInfo> takeInfo) {
         this.name = name;
         this.adjacentRoomsStr = adjacentRoomsStr;
         card = null;
         this.roles = roles;
         this.shotMarkers = shotMarkers;
+        this.dInfo = dInfo;
+        this.takeInfo = takeInfo;
         maxShotMarkers = shotMarkers;
     }
 
