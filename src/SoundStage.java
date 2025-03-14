@@ -1,22 +1,26 @@
+import javax.swing.JLabel;
 import java.util.ArrayList;
 
 public class SoundStage extends Room {
+
     SceneCard card;
     ArrayList<Role> roles;
     int maxShotMarkers; // needed for restarting day
     int shotMarkers;
     ArrayList<DisplayInfo> takeInfo = new ArrayList<DisplayInfo>();
+    DisplayInfo dCardInfo;
+    JLabel label = null;
 
 
     // ;;;;;;;;;
     public SoundStage(String name, ArrayList<String> adjacentRoomsStr, ArrayList<Role> roles,
-                      int shotMarkers, DisplayInfo dInfo, ArrayList<DisplayInfo> takeInfo) {
+                      int shotMarkers, DisplayInfo dCardInfo, ArrayList<DisplayInfo> takeInfo) {
         this.name = name;
         this.adjacentRoomsStr = adjacentRoomsStr;
         card = null;
         this.roles = roles;
         this.shotMarkers = shotMarkers;
-        this.dInfo = dInfo;
+        this.dCardInfo = dCardInfo;
         this.takeInfo = takeInfo;
         maxShotMarkers = shotMarkers;
     }
@@ -25,8 +29,24 @@ public class SoundStage extends Room {
     public void setShotMarkers(int shotMarkers) { this.shotMarkers = shotMarkers; }
     public int getMaxShotMarkers() { return maxShotMarkers; }
 
+    public SceneCard getCard() {
+        return card;
+    }
+
     public void setCard(SceneCard c) {
         this.card = c;
+    }
+
+    public void setLabel(JLabel l) {
+        label = l;
+    }
+
+    public JLabel getLabel() {
+        return label;
+    }
+
+    public DisplayInfo getCardDisplayInfo() {
+        return dCardInfo;
     }
 
     // returns true if scene is finished, false if not

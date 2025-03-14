@@ -1,16 +1,23 @@
 import java.util.ArrayList;
+import java.util.ListIterator;
 
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.ImageIcon;
-import javax.imageio.ImageIO;
 import java.awt.event.*;
-import javax.swing.JOptionPane;
 
 
 
 public class GUIView extends JFrame implements View {
     InputController ctrl;
+    private static final String cardPath = "./data/card/";
+    private static final String dicePath = "./data/dice/";
+    private static final char[] colorArray = {'b', 'c', 'g', 'o', 'p', 'r', 'v', 'y'};
+    private static boolean firstDay = true;
+
+    public void endFirstDay() {
+        firstDay = false;
+    }
+
 
     // default player locations for each room
     // h, w => const
@@ -64,6 +71,9 @@ public class GUIView extends JFrame implements View {
      *  move: dropdown
      *  takerole: dropdown
      *  upgrade: popup
+     * 
+     * new methods:
+     * updateboard: change cards and shot markers
      *
      * errors:
      */
@@ -146,14 +156,14 @@ public class GUIView extends JFrame implements View {
         setSize(bw + 200, bh);
 
         // Add a scene card to this room
-        cardlabel = new JLabel();
-        ImageIcon cIcon =  new ImageIcon("./data/card/01.png");
-        cardlabel.setIcon(cIcon);
-        cardlabel.setBounds(20, 65, cIcon.getIconWidth()+2, cIcon.getIconHeight());
-        cardlabel.setOpaque(true);
+        // cardlabel = new JLabel();
+        // ImageIcon cIcon =  new ImageIcon("./data/card/01.png");
+        // cardlabel.setIcon(cIcon);
+        // cardlabel.setBounds(20, 65, cIcon.getIconWidth()+2, cIcon.getIconHeight());
+        // cardlabel.setOpaque(true);
 
         // Add the card to the lower layer
-        lPane.add(cardlabel, 1);
+        // lPane.add(cardlabel, 1);
 
 
         // Add a dice to represent a player.
@@ -239,8 +249,24 @@ public class GUIView extends JFrame implements View {
         // TODO: display player info on the side bar
     }
 
-
+    // initialization method, dont call more than once
     public void displayLocations(Player activePlayer, Player[] players) {
+        int offset = 0;
+        for (int i=0; i<players.length; i++) {
+            Player p = players[i];
+            if (firstDay) {
+                p.setLabel(new JLabel());
+            }
+            JLabel label = p.getLabel();
+            int x = p.getRoom().getDefaultPos().x() + offset;
+            int y = p.getRoom().getDefaultPos().y();
+            label.setBounds(x, y, 40, 40);
+            offset += 20;
+            String imgName = colorArray[i] + "1.png";
+            label.setIcon(new ImageIcon(dicePath + imgName));
+            label.setOpaque(true);
+            lPane.add(label, 2);
+        }
     }
 
 
@@ -280,6 +306,27 @@ public class GUIView extends JFrame implements View {
     // this method signature is bad, but its the easiest way to implement this with for now
     public void displayEndGame(Player[] players, int[] scores, String[] winners, int winningScore) { }
     public void displayPassTurn(Player player) { }
+
+    public void displayStartDay(ArrayList<Room> rooms) {
+        ListIterator<Room> it = rooms.listIterator();
+        while (it.hasNext()) {
+            Room r;
+            if ((r = it.next()) instanceof SoundStage) {
+                SoundStage ss = (SoundStage)r;
+                if (firstDay) {
+                    JLabel label = new JLabel();
+                    DisplayInfo dInfo = ss.getCardDisplayInfo();
+                    label.setBounds(dInfo.x(), dInfo.y(), dInfo.w(), dInfo.h());
+                    ss.setLabel(label);
+                }
+                String imgName = ss.getCard().getImg();
+                ss.getLabel().setIcon(new ImageIcon(cardPath + imgName));
+                ss.getLabel().setOpaque(true);
+                lPane.add(ss.getLabel(), 1);
+            } 
+        }
+    }
+
     public void displayDiceRolls(int... diceRolled) { } // NOTE: only view method called outside of takeTurn()
 
     // Fallible actions (return 0 on success, non-zero code on fail)

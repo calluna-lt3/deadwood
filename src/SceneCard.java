@@ -30,4 +30,8 @@ public class SceneCard {
     public int getBudget() {
         return budget;
     }
+
+    public String getImg() {
+        return img;
+    }
 }

@@ -6,7 +6,6 @@ public abstract class Room {
     ArrayList<String> adjacentRoomsStr;
     ArrayList<Room> adjacentRooms;
     DefaultPos dPos;
-    DisplayInfo dInfo;
 
     public String getName() {
         return name;
@@ -26,5 +25,9 @@ public abstract class Room {
 
     public void setAdjacentRooms(ArrayList<Room> arrList) {
         adjacentRooms = arrList;
+    }
+
+    public DefaultPos getDefaultPos() {
+        return dPos;
     }
 }

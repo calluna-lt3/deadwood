@@ -1,5 +1,4 @@
-import java.util.Random;
-import java.util.ArrayList;
+import javax.swing.JLabel;
 
 public class Player {
     int money;
@@ -9,6 +8,7 @@ public class Player {
     Room currSpace;
     String name;
     Role role;
+    JLabel label;
 
     Player(String name, int credits, int rank) {
         money = 0;
@@ -28,6 +28,7 @@ public class Player {
     public void setRank(int rank) { this.rank = rank; }
     public void setRole(Role role) { this.role = role; }
     public void setRehearsalTokens(int tokens) { this.rehearsalTokens = tokens; }
+    public void setLabel(JLabel label) { this.label = label; }
 
     public String getName() { return name; }
     public int getCredits() { return credits; }
@@ -35,5 +36,6 @@ public class Player {
     public int getRank() { return rank; }
     public Role getRole() { return role; }
     public int getRehearsalTokens() { return rehearsalTokens; }
+    public JLabel getLabel() { return label; }
 
 }

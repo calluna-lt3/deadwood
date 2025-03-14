@@ -408,6 +408,7 @@ public class InputController {
 
         if (pass == true) {
             mod.setTurn(mod.getTurn() + 1);
+            v.displayPassTurn(mod.getCurrentPlayer());
 
             if (mod.getCardCount() < 2) {
                 mod.setDay(mod.getDay() + 1);
@@ -474,6 +475,7 @@ public class InputController {
         for (int i=0; i<info.count(); i++) {
             mod.setPlayer(i, new Player(info.names()[i], startCredits, startRank));
         }
+
     }
 
     private void startDay() {
@@ -492,9 +494,17 @@ public class InputController {
             p.setRehearsalTokens(0);
             p.setRoom(trailer);
             p.setRole(null);
+            // Update player positions
         }
 
         assignScenes();
+
+        if (v instanceof GUIView){
+            // ORDER MATTERS HERE
+            ((GUIView)v).displayStartDay(mod.getBoard().getRooms());
+            v.displayLocations(mod.getCurrentPlayer(), mod.getPlayers());
+            ((GUIView)v).endFirstDay();
+        }
     }
 
     private void assignScenes() {

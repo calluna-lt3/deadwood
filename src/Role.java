@@ -23,5 +23,6 @@ public class Role {
     public int getRank() { return rank; }
     public boolean getTaken() { return taken; }
     public boolean getStarring() { return starring; }
+    public DisplayInfo getDisplayInfo() { return dInfo; }
     public void setTaken(boolean val) { taken = val; }
 }
