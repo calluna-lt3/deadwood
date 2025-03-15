@@ -138,6 +138,8 @@ public class GUIView extends JFrame implements View {
 
         // Create the JLayeredPane to hold the display, cards, dice and buttons
         lPane = getLayeredPane();
+        setBounds(0, 0, 600, 600);
+        setSize(1000, 1000);
 
         // Create the deadwood board
         boardlabel = new JLabel();
@@ -155,26 +157,15 @@ public class GUIView extends JFrame implements View {
         // Set the size of the GUI
         setSize(bw + 200, bh);
 
-        // Add a scene card to this room
-        // cardlabel = new JLabel();
-        // ImageIcon cIcon =  new ImageIcon("./data/card/01.png");
-        // cardlabel.setIcon(cIcon);
-        // cardlabel.setBounds(20, 65, cIcon.getIconWidth()+2, cIcon.getIconHeight());
-        // cardlabel.setOpaque(true);
-
-        // Add the card to the lower layer
-        // lPane.add(cardlabel, 1);
-
-
         // Add a dice to represent a player.
         // Role for Crusty the prospector. The x and y co-ordiantes are taken from Board.xml file
-        playerlabel = new JLabel();
-        ImageIcon pIcon = new ImageIcon("./data/dice/r2.png");
-        playerlabel.setIcon(pIcon);
-        //playerlabel.setBounds(114,227,pIcon.getIconWidth(),pIcon.getIconHeight());
-        playerlabel.setBounds(114, 227, 46, 46);
-        playerlabel.setVisible(true);
-        lPane.add(playerlabel, 3);
+        // playerlabel = new JLabel();
+        // ImageIcon pIcon = new ImageIcon("./data/dice/r2.png");
+        // playerlabel.setIcon(pIcon);
+        // //playerlabel.setBounds(114,227,pIcon.getIconWidth(),pIcon.getIconHeight());
+        // playerlabel.setBounds(114, 227, 46, 46);
+        // playerlabel.setVisible(true);
+        // lPane.add(playerlabel, 3);
 
         // Create the Menu for action buttons
         mLabel = new JLabel("MENU");
@@ -198,6 +189,7 @@ public class GUIView extends JFrame implements View {
         cbMove = new JComboBox<String>();
         cbMove.setBackground(Color.white);
         cbMove.setBounds(bw + 120, 60, 100, 20);
+        // These values are hard-coded to avoid accessing Board during initialization
         cbMove.addItem("<None>");
         cbMove.addItem("Main Street");
         cbMove.addItem("Saloon");
@@ -330,12 +322,23 @@ public class GUIView extends JFrame implements View {
     public void displayDiceRolls(int... diceRolled) { } // NOTE: only view method called outside of takeTurn()
 
     // Fallible actions (return 0 on success, non-zero code on fail)
-    public void displayTakeRole(Role role) { }
+    public void displayTakeRole(Role role) { 
+        Player p = ctrl.mod.getCurrentPlayer();
+        JLabel label = p.getLabel();
+        int x = role.getDisplayInfo().x();
+        int y = role.getDisplayInfo().y();
+        label.setBounds(x, y, 40, 40);
+    }
     public void displayTakeRole(Enums.errno errno) { }
 
 
     public void displayMove(Room room) {
-        System.out.println(room.getName());
+        Player p = ctrl.mod.getCurrentPlayer();
+        int turn = ctrl.mod.getTurn();
+        JLabel label = p.getLabel();
+        int x = p.getRoom().getDefaultPos().x() + 20 * turn;
+        int y = p.getRoom().getDefaultPos().y();
+        label.setBounds(x, y, 40, 40);
     }
 
 
@@ -344,7 +347,12 @@ public class GUIView extends JFrame implements View {
     }
 
 
-    public void displayUpgrade(int rank) { }
+    public void displayUpgrade(int rank) {
+        Player p = ctrl.mod.getCurrentPlayer();
+        JLabel label = p.getLabel();
+        String imgName = colorArray[ctrl.mod.getTurn() - 1] + p.getRank() + ".png";
+        label.setIcon(new ImageIcon(dicePath + imgName));
+    }
     public void displayUpgrade(Enums.errno errno) { }
     public void displayRehearse(Player player) { }
     public void displayRehearse(Enums.errno errno) { }

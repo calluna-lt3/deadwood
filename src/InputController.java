@@ -296,6 +296,14 @@ public class InputController {
                     switch (result) {
                         case 0:
                             v.displayMove(mod.getCurrentPlayer().getRoom());
+                            if (v instanceof GUIView) {
+                                Room r = mod.getCurrentPlayer().getRoom();
+                                if (r instanceof SoundStage) {
+                                    v.displayRoles((SoundStage)r);
+                                } else {
+                                    v.displayRoles(Enums.errno.BAD_ROOM);
+                                }
+                            }
                             canMove = false;
                             break;
                         case -1:
