@@ -231,13 +231,13 @@ public class InputController {
     }
 
 
-    public void processAction(InVec args) {
+    public int processAction(InVec args) {
         Enums.action action = args.action();
         String arg1 = args.arg1();
         String arg2 = args.arg2();
         System.out.println(args);
+        int result = 1;
 
-        int result;
         switch (action) {
             case HELP:
                 System.out.println("got processAction HELP");
@@ -303,6 +303,7 @@ public class InputController {
                                 } else {
                                     v.displayRoles(Enums.errno.BAD_ROOM);
                                 }
+                                v.displayRooms(r);
                             }
                             canMove = false;
                             break;
@@ -412,22 +413,32 @@ public class InputController {
                 System.exit(1);
         }
 
-        if (!(v instanceof GUIView)) return;
+        if (v instanceof ConsoleView) return result;
 
         if (pass == true) {
+            pass = false;
+
             mod.setTurn(mod.getTurn() + 1);
             v.displayPassTurn(mod.getCurrentPlayer());
+
+            Room r = mod.getCurrentPlayer().getRoom();
+            if (r instanceof SoundStage) {
+                v.displayRoles((SoundStage)r);
+            } else {
+                v.displayRoles(Enums.errno.BAD_ROOM);
+            }
+            v.displayRooms(r);
 
             if (mod.getCardCount() < 2) {
                 mod.setDay(mod.getDay() + 1);
 
                 if (mod.getDay() > mod.getLastDay()) {
                     endGame();
-                    return;
                 }
                 startDay();
             }
         }
+        return result;
     }
 
 

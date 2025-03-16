@@ -36,6 +36,7 @@ public class GUIView extends JFrame implements View {
     JButton bAct;
     JButton bRehearse;
     JButton bPass;
+    JButton bWho;
 
     // Extra input
     JButton bMove;
@@ -71,12 +72,13 @@ public class GUIView extends JFrame implements View {
      *  move: dropdown
      *  takerole: dropdown
      *  upgrade: popup
-     * 
+     *
      * new methods:
      * updateboard: change cards and shot markers
      *
      * errors:
      */
+
     class boardMouseListener implements MouseListener {
         public void mouseClicked(MouseEvent e) {
 
@@ -105,6 +107,10 @@ public class GUIView extends JFrame implements View {
                 System.out.println("bRole");
                 int index = cbRole.getSelectedIndex();
                 InVec args = new InVec(Enums.action.TAKE_ROLE, Integer.toString(index), null);
+                ctrl.processAction(args);
+            } else if (e.getSource() == bWho) {
+                System.out.println("bRole");
+                InVec args = new InVec(Enums.action.WHO, null, null);
                 ctrl.processAction(args);
             }
         }
@@ -180,6 +186,7 @@ public class GUIView extends JFrame implements View {
         bRehearse = createButton("REHEARSE", bw + 10, 60, 100, 20);
         bPass = createButton("PASS", bw + 10, 90, 100, 20);
         bHelp = createButton("HELP", bw + 10, 120, 100, 20);
+        bWho = createButton("WHO", bw + 10, 150, 100, 20);
 
         // right column
         bMove = createButton("MOVE", bw + 120, 30, 100, 20);
@@ -205,6 +212,7 @@ public class GUIView extends JFrame implements View {
         lPane.add(bPass, 2);
         lPane.add(bRole, 2);
         lPane.add(bHelp, 2);
+        lPane.add(bWho, 2);
 
         lPane.add(bRehearse, 2);
         lPane.add(bMove, 2);
@@ -212,7 +220,6 @@ public class GUIView extends JFrame implements View {
         lPane.add(cbMove, 2);
         lPane.add(cbRole, 2);
     }
-
 
     public InitInfo getPlayerInfo() {
         int numPlayers = 0;
@@ -227,15 +234,12 @@ public class GUIView extends JFrame implements View {
 
         // TODO: get player names
         //  list of input boxes would be nice, parse that for numplayers
-        System.out.println(numPlayers);
         return new InitInfo(2, new String[] {"a", "b"});
     }
-
 
     public void displayHelp() {
         JOptionPane.showMessageDialog(null, "help meee", "Help", JOptionPane.INFORMATION_MESSAGE);
     }
-
 
     public void displayWho(Player p) {
         // TODO: display player info on the side bar
@@ -263,41 +267,38 @@ public class GUIView extends JFrame implements View {
 
 
     public void displayRoles(SoundStage ss) {
-        int numRoles = ss.getRoleCount();
-        cbRole.removeAll();
+        cbRole.removeAllItems();
         cbRole.addItem("<None>");
 
+        int numRoles = ss.getRoleCount();
         // getRole() is 1 indexed :(
         for (int i=1; i<numRoles+1; i++) {
             Role role = ss.getRole(i);
             String name = role.getName();
             cbRole.addItem(name);
         }
-
     }
-
 
     // only one failure condition, don't have to check errno
     public void displayRoles(Enums.errno errno) {
-        cbRole.removeAll();
+        cbRole.removeAllItems();
         cbRole.addItem("<None>");
     }
 
-
     public void displayRooms(Room room) {
         ArrayList<Room> adjRooms = room.getAdjacentRooms();
-        cbMove.removeAll();
+        cbMove.removeAllItems();
         cbMove.addItem("<None>");
         for (Room r : adjRooms) {
             cbMove.addItem(r.getName());
+            System.out.println("ROOMS: " + r.getName());
         }
     }
 
-
-    // Infallible actions
-    // this method signature is bad, but its the easiest way to implement this with for now
     public void displayEndGame(Player[] players, int[] scores, String[] winners, int winningScore) { }
-    public void displayPassTurn(Player player) { }
+    public void displayPassTurn(Player player) {
+        System.out.println("Turn: " +colorArray[ctrl.mod.getTurn()]);
+    }
 
     public void displayStartDay(ArrayList<Room> rooms) {
         ListIterator<Room> it = rooms.listIterator();
@@ -314,23 +315,22 @@ public class GUIView extends JFrame implements View {
                 String imgName = ss.getCard().getImg();
                 ss.getLabel().setIcon(new ImageIcon(cardPath + imgName));
                 ss.getLabel().setOpaque(true);
-                lPane.add(ss.getLabel(), 1);
-            } 
+                lPane.add(ss.getLabel(), 0);
+            }
         }
     }
 
     public void displayDiceRolls(int... diceRolled) { } // NOTE: only view method called outside of takeTurn()
 
-    // Fallible actions (return 0 on success, non-zero code on fail)
-    public void displayTakeRole(Role role) { 
+    public void displayTakeRole(Role role) {
         Player p = ctrl.mod.getCurrentPlayer();
         JLabel label = p.getLabel();
         int x = role.getDisplayInfo().x();
         int y = role.getDisplayInfo().y();
         label.setBounds(x, y, 40, 40);
     }
-    public void displayTakeRole(Enums.errno errno) { }
 
+    public void displayTakeRole(Enums.errno errno) { }
 
     public void displayMove(Room room) {
         Player p = ctrl.mod.getCurrentPlayer();
@@ -341,11 +341,9 @@ public class GUIView extends JFrame implements View {
         label.setBounds(x, y, 40, 40);
     }
 
-
     public void displayMove(Enums.errno errno) {
         System.out.println(errno);
     }
-
 
     public void displayUpgrade(int rank) {
         Player p = ctrl.mod.getCurrentPlayer();
@@ -353,6 +351,7 @@ public class GUIView extends JFrame implements View {
         String imgName = colorArray[ctrl.mod.getTurn() - 1] + p.getRank() + ".png";
         label.setIcon(new ImageIcon(dicePath + imgName));
     }
+
     public void displayUpgrade(Enums.errno errno) { }
     public void displayRehearse(Player player) { }
     public void displayRehearse(Enums.errno errno) { }
