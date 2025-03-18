@@ -2,6 +2,8 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import java.awt.*;
+
+import javax.management.relation.Role;
 import javax.swing.*;
 import java.awt.event.*;
 
@@ -51,6 +53,10 @@ public class GUIView extends JFrame implements View {
     // Player information box
     JPanel playerInfoPane;
     JTextArea playerInfoText;
+
+    // Error display box
+    JPanel errPanel;
+    JTextArea errText;
 
     // JLayered Pane
     JLayeredPane lPane;
@@ -188,6 +194,15 @@ public class GUIView extends JFrame implements View {
 
         playerInfoPane.add(playerInfoText);
 
+        errPanel = new JPanel();
+        errPanel.setBounds(bw+10, bh-800, 200, 400);
+        errPanel.setBackground(Color.white);
+
+        errText = new JTextArea("Error");
+        errText.setEditable(false);
+        errText.setTabSize(2);
+        errText.setVisible(false);
+
 
         /* Create buttons */
 
@@ -317,6 +332,7 @@ public class GUIView extends JFrame implements View {
             String name = role.getName();
             cbRole.addItem(name);
         }
+        errPanel.setVisible(false);
     }
 
     // only one failure condition, don't have to check errno
@@ -369,9 +385,35 @@ public class GUIView extends JFrame implements View {
         int x = role.getDisplayInfo().x();
         int y = role.getDisplayInfo().y();
         label.setBounds(x, y, 40, 40);
+        errPanel.setVisible(false);
     }
 
-    public void displayTakeRole(Enums.errno errno) { }
+    public void displayTakeRole(Enums.errno errno) {
+        switch (errno) {
+            case OOB:
+                errText.setText("Role does not exist");
+                break;
+            case BAD_ROOM:
+                errText.setText("Room has no roles");
+                break;
+            case IN_ROLE:
+                errText.setText("You already have a role");
+                break;
+            case BAD_ARGS:
+                errText.setText("Role index must be a number");
+                break;
+            case LEQ:
+                errText.setText("Your rank is not high enough for this role");
+                break;
+            case FORBIDDEN_ACTION:
+                errText.setText("This role is already taken");
+                break;
+            default:
+                System.err.println("fatal error");
+                System.exit(1);
+        }
+        errPanel.setVisible(true);
+    }
 
     public void displayMove(Room room) {
         Player p = ctrl.mod.getCurrentPlayer();
@@ -380,10 +422,25 @@ public class GUIView extends JFrame implements View {
         int x = p.getRoom().getDefaultPos().x() + 20 * turn;
         int y = p.getRoom().getDefaultPos().y();
         label.setBounds(x, y, 40, 40);
+        errPanel.setVisible(false);
     }
 
     public void displayMove(Enums.errno errno) {
-        System.out.println(errno);
+        switch (errno) {
+            case FORBIDDEN_ACTION:
+                errText.setText("You can't move right now");
+                break;
+            case OOB:
+                errText.setText("Selected room isn't available");
+                break;
+            case BAD_ARGS:
+                errText.setText("Room number must be a number");
+                break;
+            default:
+                System.err.println("fatal error");
+                System.exit(1);
+        }
+        errPanel.setVisible(true);
     }
 
     public void displayUpgrade(int rank) {
@@ -392,15 +449,61 @@ public class GUIView extends JFrame implements View {
         String color = Character.toString(colorArray[ctrl.mod.getTurn()]);
         String imgName = color + p.getRank() + ".png";
         label.setIcon(new ImageIcon(dicePath + imgName));
+        errPanel.setVisible(false);
     }
 
-    public void displayUpgrade(Enums.errno errno) { }
+    public void displayUpgrade(Enums.errno errno) {
+        switch (errno) {
+            case NO_CREDITS:
+                errText.setText("Not enough credits");
+                break;
+            case NO_MONEY:
+                errText.setText("Not enough money");
+                break;
+            case MAX_RANK:
+                errText.setText("Already max rank");
+                break;
+            case OOB:
+                errText.setText("Invalid input, accepted values between 2-6");
+                break;
+            case LEQ:
+                errText.setText("Requested rank less than or equal to your current rank");
+                break;
+            case BAD_ARGS:
+                errText.setText("Usage: upgrade <rank> <money|credits>");
+                break;
+            case BAD_ROOM:
+                errText.setText("You are not at the casting office");
+                break;
+            default:
+                System.err.println("fatal error");
+                System.exit(1);
+        }
+        errPanel.setVisible(true);
+    }
 
     public void displayRehearse(Player player) {
         displayWho(player);
+        errPanel.setVisible(false);
     }
 
-    public void displayRehearse(Enums.errno errno) { }
+    public void displayRehearse(Enums.errno errno) {
+        switch (errno) {
+            case DUP_ACTION:
+                errText.setText("You have already worked this turn");
+                break;
+            case FORBIDDEN_ACTION:
+                errText.setText("You already have the maximum number rehearsal tokens for this role");
+                break;
+            case IN_ROLE: // player not in role
+                errText.setText("You don't have a role");
+                break;
+            default:
+                System.err.println("fatal error");
+                System.exit(1);
+        }
+        errPanel.setVisible(true);
+    }
 
 
     private void initShotMarkers(SoundStage ss) {
@@ -429,9 +532,23 @@ public class GUIView extends JFrame implements View {
                 ss.getLabel().setOpaque(false);
             }
         }
+        errPanel.setVisible(false);
     }
 
-    public void displayAct(Enums.errno errno) { }
+    public void displayAct(Enums.errno errno) {
+        switch (errno) {
+            case FORBIDDEN_ACTION:
+                errText.setText("You don't have a role");
+                break;
+            case DUP_ACTION:
+                errText.setText("You have already worked this turn");
+                break;
+            default:
+                System.err.println("fatal error");
+                System.exit(1);
+        }
+        errPanel.setVisible(true);
+    }
 
     /* UNUSED */
     public InVec getUserAction() { return null; }
