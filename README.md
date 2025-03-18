@@ -7,14 +7,5 @@ Implementation by Jackson and Nao
 ## Compilation/Running
 
 Compile: `make build`  
-Run: `make run`  
-
-
-## TODO
-
-ConsoleView.java  
-- displayAct: basic implementation is done, could expand it to display info
-  about money/credits but not necessary  
-
-InputController.java  
-- add limit to number of times someone can act  
+Run as tui: `make run-tui`  
+Run as gui: `make run-gui`  

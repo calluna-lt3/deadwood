@@ -3,7 +3,6 @@ import java.util.ListIterator;
 
 import java.awt.*;
 
-import javax.management.relation.Role;
 import javax.swing.*;
 import java.awt.event.*;
 
@@ -267,15 +266,49 @@ public class GUIView extends JFrame implements View {
         do {
             try {
                 String input = JOptionPane.showInputDialog(this, "How many players? (2-8)");
+                if (input == null) continue;
                 numPlayers = Integer.parseInt(input);
             } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Player count must be a number.");
                 continue;
             }
-        } while (numPlayers < 2 || numPlayers > 8);
 
-        // TODO: get player names
-        //  list of input boxes would be nice, parse that for numplayers
-        return new InitInfo(2, new String[] {"a", "b"});
+            if (numPlayers < 2 || numPlayers > 8) {
+                JOptionPane.showMessageDialog(this, "Player count must be between 2 and 8.");
+                continue;
+            }
+
+            break;
+        } while (true);
+
+        String[] players = new String[numPlayers];
+        int curPlayer = 0;
+        do {
+            String input = JOptionPane.showInputDialog(this, "Enter name for player number " + (curPlayer + 1) + ".");
+            if (input == null) continue;
+            if ("".equals(input)) {
+                JOptionPane.showMessageDialog(this, "Name must be at least one character.");
+                continue;
+            }
+
+            boolean nameExists = false;
+            for (int i=0; i<curPlayer; i++) {
+                if (players[i].equals(input)) {
+                    nameExists = true;
+                    break;
+                }
+            }
+
+            if (nameExists) {
+                JOptionPane.showMessageDialog(this, "Name cannot be an already entered name.");
+                continue;
+            }
+
+            players[curPlayer] = input;
+            curPlayer++;
+        } while (curPlayer < numPlayers);
+
+        return new InitInfo(numPlayers, players);
     }
 
     public void displayHelp() {
