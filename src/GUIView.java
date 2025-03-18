@@ -36,7 +36,6 @@ public class GUIView extends JFrame implements View {
     JButton bAct;
     JButton bRehearse;
     JButton bPass;
-    JButton bWho;
 
     // Extra input
     JButton bMove;
@@ -46,6 +45,12 @@ public class GUIView extends JFrame implements View {
     // Combo box
     JComboBox<String> cbMove;
     JComboBox<String> cbRole;
+    JComboBox<String> cbUpgradeRank;
+    JComboBox<String> cbUpgradeType;
+
+    // Player information box
+    JPanel playerInfoPane;
+    JTextArea playerInfoText;
 
     // JLayered Pane
     JLayeredPane lPane;
@@ -103,14 +108,17 @@ public class GUIView extends JFrame implements View {
                 int index = cbMove.getSelectedIndex();
                 InVec args = new InVec(Enums.action.MOVE, Integer.toString(index), null);
                 ctrl.processAction(args);
+            } else if (e.getSource() == bUpgrade) {
+                System.out.println("bUpgrade");
+                int rank = cbUpgradeRank.getSelectedIndex();
+                String type = cbUpgradeType.getSelectedItem().toString().toLowerCase();
+                System.out.println(type);
+                InVec args = new InVec(Enums.action.UPGRADE, Integer.toString(rank+1), type);
+                ctrl.processAction(args);
             } else if (e.getSource() == bRole) {
                 System.out.println("bRole");
                 int index = cbRole.getSelectedIndex();
                 InVec args = new InVec(Enums.action.TAKE_ROLE, Integer.toString(index), null);
-                ctrl.processAction(args);
-            } else if (e.getSource() == bWho) {
-                System.out.println("bRole");
-                InVec args = new InVec(Enums.action.WHO, null, null);
                 ctrl.processAction(args);
             }
         }
@@ -134,7 +142,7 @@ public class GUIView extends JFrame implements View {
     /* Layers
      *  0: board
      *  1: cards
-     *  2: buttons, players
+     *  0: buttons, players
      *  3: alerts
     */
     public void displayInit() {
@@ -163,20 +171,22 @@ public class GUIView extends JFrame implements View {
         // Set the size of the GUI
         setSize(bw + 200, bh);
 
-        // Add a dice to represent a player.
-        // Role for Crusty the prospector. The x and y co-ordiantes are taken from Board.xml file
-        // playerlabel = new JLabel();
-        // ImageIcon pIcon = new ImageIcon("./data/dice/r2.png");
-        // playerlabel.setIcon(pIcon);
-        // //playerlabel.setBounds(114,227,pIcon.getIconWidth(),pIcon.getIconHeight());
-        // playerlabel.setBounds(114, 227, 46, 46);
-        // playerlabel.setVisible(true);
-        // lPane.add(playerlabel, 3);
-
         // Create the Menu for action buttons
         mLabel = new JLabel("MENU");
         mLabel.setBounds(bw+40, 0, 100, 20);
         lPane.add(mLabel,2);
+
+
+        /* Text field */
+        playerInfoPane = new JPanel();
+        playerInfoPane.setBounds(bw+10, bh-400, 200, 400);
+        playerInfoPane.setBackground(Color.white);
+
+        playerInfoText = new JTextArea("Player Information");
+        playerInfoText.setEditable(false);
+        playerInfoText.setTabSize(2);
+
+        playerInfoPane.add(playerInfoText);
 
 
         /* Create buttons */
@@ -186,11 +196,11 @@ public class GUIView extends JFrame implements View {
         bRehearse = createButton("REHEARSE", bw + 10, 60, 100, 20);
         bPass = createButton("PASS", bw + 10, 90, 100, 20);
         bHelp = createButton("HELP", bw + 10, 120, 100, 20);
-        bWho = createButton("WHO", bw + 10, 150, 100, 20);
 
         // right column
         bMove = createButton("MOVE", bw + 120, 30, 100, 20);
         bRole = createButton("ROLE", bw + 120, 90, 100, 20);
+        bUpgrade = createButton("UPGRADE", bw + 120, 150, 100, 20);
 
         // Combo Buttons
         cbMove = new JComboBox<String>();
@@ -207,18 +217,34 @@ public class GUIView extends JFrame implements View {
         cbRole.setBounds(bw + 120, 120, 100, 20);
         cbRole.addItem("<None>");
 
-        // Place the action buttons in the top layer
+        cbUpgradeType = new JComboBox<String>();
+        cbUpgradeType.setBackground(Color.white);
+        cbUpgradeType.setBounds(bw + 120, 180, 100, 20);
+        cbUpgradeType.addItem("Money");
+        cbUpgradeType.addItem("Credits");
+
+        cbUpgradeRank = new JComboBox<String>();
+        cbUpgradeRank.setBackground(Color.white);
+        cbUpgradeRank.setBounds(bw + 120, 210, 100, 20);
+        for (int i=1; i<7; i++) { cbUpgradeRank.addItem("Rank " + i); }
+
+
+        /* Add to layered pane */
+        lPane.add(playerInfoPane, 2);
+
         lPane.add(bAct, 2);
         lPane.add(bPass, 2);
         lPane.add(bRole, 2);
         lPane.add(bHelp, 2);
-        lPane.add(bWho, 2);
+        lPane.add(bUpgrade, 2);
 
         lPane.add(bRehearse, 2);
         lPane.add(bMove, 2);
 
         lPane.add(cbMove, 2);
         lPane.add(cbRole, 2);
+        lPane.add(cbUpgradeRank, 2);
+        lPane.add(cbUpgradeType, 2);
     }
 
     public InitInfo getPlayerInfo() {
@@ -241,8 +267,22 @@ public class GUIView extends JFrame implements View {
         JOptionPane.showMessageDialog(null, "help meee", "Help", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    public void displayWho(Player p) {
-        // TODO: display player info on the side bar
+    public void displayWho(Player player) {
+        String name = player.getName();
+        String rank = Integer.toString(player.getRank());
+        String money = Integer.toString(player.getMoney());
+        String credits = Integer.toString(player.getCredits());
+        String tokens = Integer.toString(player.getRehearsalTokens());
+        String role = (player.getRole() != null) ? player.getRole().getName() : "none";
+        String line = (player.getRole() != null) ? player.getRole().getLine() : "";
+
+        playerInfoText.setText("Active player: " + name
+            + "\n\tRank: " + rank
+            + "\n\tMoney: " + money
+            + "\n\tCredits: " + credits
+            + "\n\tTokens: " + tokens
+            + "\n\tJob: " + role
+            + "\n\tLine: " + line);
     }
 
     // initialization method, dont call more than once
@@ -306,6 +346,7 @@ public class GUIView extends JFrame implements View {
             Room r;
             if ((r = it.next()) instanceof SoundStage) {
                 SoundStage ss = (SoundStage)r;
+                initShotMarkers(ss);
                 if (firstDay) {
                     JLabel label = new JLabel();
                     DisplayInfo dInfo = ss.getCardDisplayInfo();
@@ -348,16 +389,48 @@ public class GUIView extends JFrame implements View {
     public void displayUpgrade(int rank) {
         Player p = ctrl.mod.getCurrentPlayer();
         JLabel label = p.getLabel();
-        String imgName = colorArray[ctrl.mod.getTurn() - 1] + p.getRank() + ".png";
+        String color = Character.toString(colorArray[ctrl.mod.getTurn()]);
+        String imgName = color + p.getRank() + ".png";
         label.setIcon(new ImageIcon(dicePath + imgName));
     }
 
     public void displayUpgrade(Enums.errno errno) { }
-    public void displayRehearse(Player player) { }
+
+    public void displayRehearse(Player player) {
+        displayWho(player);
+    }
+
     public void displayRehearse(Enums.errno errno) { }
 
-    // Stochastic actions (return the result of a dice check)
-    public void displayAct(boolean success) { }
+
+    private void initShotMarkers(SoundStage ss) {
+        if (firstDay) {
+            for (DisplayInfo di : ss.takeInfo) {
+                JLabel label = new JLabel();
+                label.setIcon(new ImageIcon("./data/shot.png"));
+                label.setBounds(di.x(), di.y(), di.w(), di.h());
+                ss.shotLabels.add(label);
+                lPane.add(label, 0);
+            }
+        }
+
+        for (JLabel label : ss.shotLabels) {
+            label.setVisible(true);
+        }
+    }
+
+
+    public void displayAct(boolean success) {
+        SoundStage ss = (SoundStage)ctrl.mod.getCurrentPlayer().getRoom();
+
+        if (success) {
+            ss.shotLabels.get(ss.getShotMarkers()).setVisible(false);;
+            if (ss.getShotMarkers() == 0) {
+                ss.getLabel().setOpaque(false);
+            }
+        }
+    }
+
     public void displayAct(Enums.errno errno) { }
 
     /* UNUSED */

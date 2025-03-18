@@ -265,6 +265,7 @@ public class InputController {
                     switch (result) {
                         case 0:
                             v.displayTakeRole(mod.getCurrentPlayer().getRole());
+                            if (v instanceof GUIView) v.displayWho(mod.getCurrentPlayer());
                             break;
                         case -1:
                             v.displayTakeRole(Enums.errno.IN_ROLE);
@@ -332,6 +333,7 @@ public class InputController {
                     switch (result) {
                         case 0:
                             v.displayUpgrade(mod.getCurrentPlayer().getRank());
+                            if (v instanceof GUIView) v.displayWho(mod.getCurrentPlayer());
                             break;
                         case -1:
                             v.displayUpgrade(Enums.errno.MAX_RANK);
@@ -387,6 +389,7 @@ public class InputController {
                 switch (result) {
                     case 0:
                         v.displayRehearse(mod.getCurrentPlayer());
+                        if (v instanceof GUIView) v.displayWho(mod.getCurrentPlayer());
                         canWork = false;
                         break;
                     case -1:
@@ -419,14 +422,13 @@ public class InputController {
             pass = false;
 
             mod.setTurn(mod.getTurn() + 1);
-            v.displayPassTurn(mod.getCurrentPlayer());
+            Player p = mod.getCurrentPlayer();
+            v.displayPassTurn(p);
 
             Room r = mod.getCurrentPlayer().getRoom();
-            if (r instanceof SoundStage) {
-                v.displayRoles((SoundStage)r);
-            } else {
-                v.displayRoles(Enums.errno.BAD_ROOM);
-            }
+            if (r instanceof SoundStage) v.displayRoles((SoundStage)r);
+            else v.displayRoles(Enums.errno.BAD_ROOM);
+            v.displayWho(p);
             v.displayRooms(r);
 
             if (mod.getCardCount() < 2) {
@@ -469,7 +471,7 @@ public class InputController {
 
         mod.setTurn(random.nextInt(info.count()));
 
-        int startCredits = 1;
+        int startCredits = 100;
         int startRank = 1;
         switch (mod.getPlayerCount()) {
             case 2: case 3:
@@ -503,7 +505,6 @@ public class InputController {
         Room trailer = null;
         for (Room r : mod.getBoard().getRooms()) {
             if (r.getName().equals("trailer")) {
-
                 trailer = r;
                 break;
             }
@@ -518,11 +519,12 @@ public class InputController {
 
         assignScenes();
 
-        if (v instanceof GUIView){
+        if (v instanceof GUIView) {
             // ORDER MATTERS HERE
             ((GUIView)v).displayStartDay(mod.getBoard().getRooms());
             v.displayLocations(mod.getCurrentPlayer(), mod.getPlayers());
             ((GUIView)v).endFirstDay();
+            v.displayWho(mod.getCurrentPlayer());
         }
     }
 

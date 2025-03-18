@@ -25,29 +25,29 @@ public class Board {
     public void setDefaultPositions() {
         for (Room r : rooms) {
             if ("Bank".equals(r.getName())) {
-                r.dPos = new DefaultPos(1000, 190);
+                r.dPos = new DefaultPos(630, 600);
             } else if ("Church".equals(r.getName())) {
-                r.dPos = new DefaultPos(770, 690);
+                r.dPos = new DefaultPos(750, 670);
             } else if ("General Store".equals(r.getName())) {
-                r.dPos = new DefaultPos(320, 420);
+                r.dPos = new DefaultPos(300, 400);
             } else if ("Hotel".equals(r.getName())) {
-                r.dPos = new DefaultPos(1000, 875);
+                r.dPos = new DefaultPos(980, 855);
             } else if ("Jail".equals(r.getName())) {
-                r.dPos = new DefaultPos(300, 190);
+                r.dPos = new DefaultPos(280, 170);
             } else if ("Main Street".equals(r.getName())) {
-                r.dPos = new DefaultPos(1000, 190);
+                r.dPos = new DefaultPos(980, 170);
             } else if ("Ranch".equals(r.getName())) {
-                r.dPos = new DefaultPos(260, 650);
+                r.dPos = new DefaultPos(240, 630);
             } else if ("Saloon".equals(r.getName())) {
-                r.dPos = new DefaultPos(630, 420);
+                r.dPos = new DefaultPos(610, 400);
             } else if ("Secret Hideout".equals(r.getName())) {
-                r.dPos = new DefaultPos(260, 840);
+                r.dPos = new DefaultPos(240, 820);
             } else if ("Train Station".equals(r.getName())) {
-                r.dPos = new DefaultPos(30, 200);
+                r.dPos = new DefaultPos(10, 180);
             } else if ("office".equals(r.getName())) {
-                r.dPos = new DefaultPos(30, 570);
+                r.dPos = new DefaultPos(10, 550);
             } else if ("trailer".equals(r.getName())) {
-                r.dPos = new DefaultPos(1000, 250);
+                r.dPos = new DefaultPos(1000, 300);
             }
         }
     }

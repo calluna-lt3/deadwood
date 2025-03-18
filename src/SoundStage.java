@@ -8,6 +8,7 @@ public class SoundStage extends Room {
     int maxShotMarkers; // needed for restarting day
     int shotMarkers;
     ArrayList<DisplayInfo> takeInfo = new ArrayList<DisplayInfo>();
+    ArrayList<JLabel> shotLabels = new ArrayList<JLabel>();
     DisplayInfo dCardInfo;
     JLabel label = null;
 
