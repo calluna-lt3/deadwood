@@ -60,9 +60,11 @@ public class GUIView extends JFrame implements View {
     // Show dice for each player
     JLabel turnIcon;
 
+    // For dice
     JPanel dicePanel;
     JLabel[] rollDice;
 
+    // For succ/failure of actin
     JLabel actState;
     JPanel actStatePanel;
 
@@ -72,6 +74,7 @@ public class GUIView extends JFrame implements View {
     GUIView() {
         super("Deadwood");
     }
+
 
     public void setController(InputController ctrl) {
         this.ctrl = ctrl;
@@ -102,35 +105,27 @@ public class GUIView extends JFrame implements View {
         public void mouseClicked(MouseEvent e) {
 
             if (e.getSource() == bHelp) {
-                System.out.println("bHelp");
                 InVec args = new InVec(Enums.action.HELP, null, null);
                 ctrl.processAction(args);
             } else if (e.getSource() == bAct) {
-                System.out.println("bAct");
                 InVec args = new InVec(Enums.action.ACT, null, null);
                 ctrl.processAction(args);
             } else if (e.getSource() == bRehearse) {
-                System.out.println("bRehearse");
                 InVec args = new InVec(Enums.action.REHEARSE, null, null);
                 ctrl.processAction(args);
             } else if (e.getSource() == bPass) {
-                System.out.println("bPass");
                 InVec args = new InVec(Enums.action.PASS, null, null);
                 ctrl.processAction(args);
             } else if (e.getSource() == bMove) {
-                System.out.println("bMove");
                 int index = cbMove.getSelectedIndex();
                 InVec args = new InVec(Enums.action.MOVE, Integer.toString(index), null);
                 ctrl.processAction(args);
             } else if (e.getSource() == bUpgrade) {
-                System.out.println("bUpgrade");
                 int rank = cbUpgradeRank.getSelectedIndex();
                 String type = cbUpgradeType.getSelectedItem().toString().toLowerCase();
-                System.out.println(type);
                 InVec args = new InVec(Enums.action.UPGRADE, Integer.toString(rank+1), type);
                 ctrl.processAction(args);
             } else if (e.getSource() == bRole) {
-                System.out.println("bRole");
                 int index = cbRole.getSelectedIndex();
                 InVec args = new InVec(Enums.action.TAKE_ROLE, Integer.toString(index), null);
                 ctrl.processAction(args);
@@ -217,18 +212,17 @@ public class GUIView extends JFrame implements View {
         turnIcon.setBounds(bw + 80, bh - 260, 40, 40);
 
         dicePanel = new JPanel();
+        dicePanel.setLayout(new GridLayout(2, 3, 0, 20));
         dicePanel.setBounds(bw+10, bh-530, 200, 120);
         dicePanel.setBackground(Color.white);
         dicePanel.setVisible(true);
 
-        rollDice = new JLabel[6];
 
+        rollDice = new JLabel[6];
         for (int i = 0; i < 6; i++) {
             JLabel j = rollDice[i] = new JLabel();
             dicePanel.add(j);
-            j.setBounds(20 + 60 * (i % 3), 20 + 60 * (i / 3), 40, 40);
-            System.out.print(20 + 60 * (i % 3) + " ");
-            System.out.println(20 + 60 * (i / 3));
+            j.setBounds(20 + 60 * (i % 3), 20 + 60 * (i / 3), 60, 40);
             j.setVisible(false);
         }
 
@@ -305,6 +299,7 @@ public class GUIView extends JFrame implements View {
         lPane.add(actStatePanel, 2);
     }
 
+
     public InitInfo getPlayerInfo() {
         int numPlayers = 0;
         do {
@@ -355,9 +350,11 @@ public class GUIView extends JFrame implements View {
         return new InitInfo(numPlayers, players);
     }
 
+
     public void displayHelp() {
-        JOptionPane.showMessageDialog(null, "help meee", "Help", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(null, "See Deadwood rules for information on how to play the game.", "Help", JOptionPane.INFORMATION_MESSAGE);
     }
+
 
     public void displayWho(Player player) {
         String name = player.getName();
@@ -377,23 +374,23 @@ public class GUIView extends JFrame implements View {
             + "\n\tLine: " + line);
     }
 
+
     // initialization method, dont call more than once
     public void displayLocations(Player activePlayer, Player[] players) {
+        if (!firstDay) return;
         int offset = 0;
         for (int i=0; i<players.length; i++) {
             Player p = players[i];
-            if (firstDay) {
-                p.setLabel(new JLabel());
-            }
+            p.setLabel(new JLabel());
             JLabel label = p.getLabel();
-            int x = p.getRoom().getDefaultPos().x() + offset;
-            int y = p.getRoom().getDefaultPos().y();
-            label.setBounds(x, y, 40, 40);
-            offset += 20;
             String imgName = colorArray[i] + "1.png";
             label.setIcon(new ImageIcon(dicePath + imgName));
             label.setOpaque(true);
             lPane.add(label, 2);
+            int x = p.getRoom().getDefaultPos().x() + offset;
+            int y = p.getRoom().getDefaultPos().y();
+            label.setBounds(x, y, 40, 40);
+            offset += 20;
         }
         turnIcon.setIcon(activePlayer.getLabel().getIcon());
     }
@@ -425,13 +422,35 @@ public class GUIView extends JFrame implements View {
         cbMove.addItem("<None>");
         for (Room r : adjRooms) {
             cbMove.addItem(r.getName());
-            System.out.println("ROOMS: " + r.getName());
         }
     }
 
-    public void displayEndGame(Player[] players, int[] scores, String[] winners, int winningScore) { }
+    public void displayEndGame(Player[] players, int[] scores, String[] winners, int winningScore) {
+        boolean plural = (winners.length > 1) ? true : false;
+        StringBuilder output = new StringBuilder();
+        output.append("The game is over!" + "\n");
+
+        if (plural) {
+            output.append("Winners with " + winningScore + " points: ");
+            for (String winner : winners) {
+                output.append(winner + " ");
+            }
+            output.append("\n");
+        } else {
+            output.append("Winner with " + winningScore + " points: " + winners[0] + "\n");
+        }
+
+        output.append("Player scores:" + "\n");
+        for (int i=0; i<players.length; i++) {
+            output.append("\t" + players[i].getName() + ": " + scores[i] + "\n");
+        }
+
+        JOptionPane.showMessageDialog(this, output);
+        System.exit(0);
+    }
+
+
     public void displayPassTurn(Player player) {
-        System.out.println("Turn: " +colorArray[ctrl.mod.getTurn()]);
         turnIcon.setIcon(player.getLabel().getIcon());
         errPanel.setVisible(false);
         for (int i = 0; i < 6; i++) {
@@ -439,6 +458,7 @@ public class GUIView extends JFrame implements View {
         }
         actStatePanel.setVisible(false);
     }
+
 
     public void displayStartDay(ArrayList<Room> rooms) {
         ListIterator<Room> it = rooms.listIterator();
@@ -453,6 +473,7 @@ public class GUIView extends JFrame implements View {
                     label.setBounds(dInfo.x(), dInfo.y(), dInfo.w(), dInfo.h());
                     ss.setLabel(label);
                 }
+
                 String imgName = ss.getCard().getImg();
                 ss.getLabel().setIcon(new ImageIcon(cardPath + imgName));
                 ss.getLabel().setOpaque(true);
@@ -460,6 +481,7 @@ public class GUIView extends JFrame implements View {
             }
         }
     }
+
 
     public void displayDiceRolls(int... diceRolled) {
         for (int i = 0; i < diceRolled.length; i++) {
@@ -470,6 +492,7 @@ public class GUIView extends JFrame implements View {
         dicePanel.setVisible(true);
     } // NOTE: only view method called outside of takeTurn()
 
+
     public void displayTakeRole(Role role) {
         Player p = ctrl.mod.getCurrentPlayer();
         JLabel label = p.getLabel();
@@ -478,6 +501,7 @@ public class GUIView extends JFrame implements View {
         label.setBounds(x, y, 40, 40);
         errPanel.setVisible(false);
     }
+
 
     public void displayTakeRole(Enums.errno errno) {
         switch (errno) {
@@ -506,6 +530,7 @@ public class GUIView extends JFrame implements View {
         errPanel.setVisible(true);
     }
 
+
     public void displayMove(Room room) {
         Player p = ctrl.mod.getCurrentPlayer();
         int turn = ctrl.mod.getTurn();
@@ -515,6 +540,7 @@ public class GUIView extends JFrame implements View {
         label.setBounds(x, y, 40, 40);
         errPanel.setVisible(false);
     }
+
 
     public void displayMove(Enums.errno errno) {
         switch (errno) {
@@ -534,6 +560,7 @@ public class GUIView extends JFrame implements View {
         errPanel.setVisible(true);
     }
 
+
     public void displayUpgrade(int rank) {
         Player p = ctrl.mod.getCurrentPlayer();
         JLabel label = p.getLabel();
@@ -542,6 +569,7 @@ public class GUIView extends JFrame implements View {
         label.setIcon(new ImageIcon(dicePath + imgName));
         errPanel.setVisible(false);
     }
+
 
     public void displayUpgrade(Enums.errno errno) {
         switch (errno) {
@@ -573,10 +601,12 @@ public class GUIView extends JFrame implements View {
         errPanel.setVisible(true);
     }
 
+
     public void displayRehearse(Player player) {
         displayWho(player);
         errPanel.setVisible(false);
     }
+
 
     public void displayRehearse(Enums.errno errno) {
         switch (errno) {
@@ -623,7 +653,7 @@ public class GUIView extends JFrame implements View {
             if (ss.getShotMarkers() == 0) {
                 ss.getLabel().setVisible(false);
             }
-            
+
             actStatePanel.setBackground(Color.green);
             actState.setText("You succeeded at acting");
         } else {

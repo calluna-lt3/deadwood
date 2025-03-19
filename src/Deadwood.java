@@ -43,10 +43,8 @@ public class Deadwood {
 
         View v;
         if (hasGui) {
-            System.out.println("CFG: GUI");
             v = new GUIView();
         } else {
-            System.out.println("CFG: TUI");
             v = new ConsoleView();
         }
 

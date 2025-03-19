@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -18,7 +19,7 @@ public class InputController {
 
 
     // Money is false, credits is true
-    private int requestUpgrade(int rank, boolean currency)  {
+    private int requestUpgrade(int rank, boolean currency) {
         int[] money_vals = {4, 10, 18, 28, 40};
         int[] credit_vals = {5, 10, 15, 20, 25};
         Player currPlayer = mod.getCurrentPlayer();
@@ -143,6 +144,7 @@ public class InputController {
             currPlayer.setCredits(currPlayer.getCredits() + 1);
         }
 
+        // Scene wrap
         if (((SoundStage) currPlayer.getRoom()).decrementShotMarkers()) {
             boolean starring = false;
             ArrayList<Player> extraPlayers = new ArrayList<Player>();
@@ -156,12 +158,12 @@ public class InputController {
                     }
                     starring = true;
 
+                    if (starringPlayers.size() == 0) starringPlayers.add(p);
+
                     // Descending order, >1 element in list
                     int i = 0;
                     for (; starringPlayers.get(i).getRole().getRank() > p.getRole().getRank(); i++);
                     starringPlayers.add(i, p);
-
-                    if (starringPlayers.size() == 0) starringPlayers.add(p);
                 }
             }
 
@@ -231,16 +233,14 @@ public class InputController {
     }
 
 
-    public int processAction(InVec args) {
+    public void processAction(InVec args) {
         Enums.action action = args.action();
         String arg1 = args.arg1();
         String arg2 = args.arg2();
-        System.out.println(args);
         int result = 1;
 
         switch (action) {
             case HELP:
-                System.out.println("got processAction HELP");
                 v.displayHelp();
                 break;
             case WHO:
@@ -416,7 +416,7 @@ public class InputController {
                 System.exit(1);
         }
 
-        if (v instanceof ConsoleView) return result;
+        if (v instanceof ConsoleView) return;
 
         if (pass == true) {
             pass = false;
@@ -440,7 +440,6 @@ public class InputController {
                 startDay();
             }
         }
-        return result;
     }
 
 
@@ -541,10 +540,9 @@ public class InputController {
 
     // calculate scores, determines winner, etc.
     private void endGame() {
-        String[] winners = new String[0];
+        ArrayList<String> winners = new ArrayList<String>();
         Player[] players = mod.getPlayers();
         int[] scores = new int[players.length];
-        int winnerIndex = 0;
         int highestScore = 0;
 
         for (int i=0; i<players.length; i++) {
@@ -557,15 +555,18 @@ public class InputController {
 
             if (score > highestScore) {
                 highestScore = score;
-                winnerIndex = 0;
-                winners = new String[0];
-                winners[winnerIndex] = p.getName();
+                winners.add(p.getName());
             } else if (score == highestScore) {
-                winnerIndex++;
-                winners[winnerIndex] = p.getName();
+                winners.add(p.getName());
             }
         }
 
-        v.displayEndGame(players, scores, winners, highestScore);
+        int count = winners.size();
+        String[] winnerArr = new String[count];
+        for (int i=0; i<count; i++) {
+            winnerArr[i] = winners.get(i);
+        }
+
+        v.displayEndGame(players, scores, winnerArr, highestScore);
     }
 }
