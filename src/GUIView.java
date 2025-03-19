@@ -377,16 +377,20 @@ public class GUIView extends JFrame implements View {
 
     // initialization method, dont call more than once
     public void displayLocations(Player activePlayer, Player[] players) {
-        if (!firstDay) return;
         int offset = 0;
         for (int i=0; i<players.length; i++) {
             Player p = players[i];
-            p.setLabel(new JLabel());
+
+            if (firstDay) {
+                JLabel label = new JLabel();
+                p.setLabel(label);
+                String imgName = colorArray[i] + "1.png";
+                label.setIcon(new ImageIcon(dicePath + imgName));
+                label.setOpaque(true);
+                lPane.add(label, 2);
+            }
+
             JLabel label = p.getLabel();
-            String imgName = colorArray[i] + "1.png";
-            label.setIcon(new ImageIcon(dicePath + imgName));
-            label.setOpaque(true);
-            lPane.add(label, 2);
             int x = p.getRoom().getDefaultPos().x() + offset;
             int y = p.getRoom().getDefaultPos().y();
             label.setBounds(x, y, 40, 40);
