@@ -55,7 +55,16 @@ public class GUIView extends JFrame implements View {
 
     // Error display box
     JPanel errPanel;
-    JTextArea errText;
+    JLabel errText;
+
+    // Show dice for each player
+    JLabel turnIcon;
+
+    JPanel dicePanel;
+    JLabel[] rollDice;
+
+    JLabel actState;
+    JPanel actStatePanel;
 
     // JLayered Pane
     JLayeredPane lPane;
@@ -147,7 +156,7 @@ public class GUIView extends JFrame implements View {
     /* Layers
      *  0: board
      *  1: cards
-     *  0: buttons, players
+     *  2: buttons, players
      *  3: alerts
     */
     public void displayInit() {
@@ -184,7 +193,7 @@ public class GUIView extends JFrame implements View {
 
         /* Text field */
         playerInfoPane = new JPanel();
-        playerInfoPane.setBounds(bw+10, bh-400, 200, 400);
+        playerInfoPane.setBounds(bw+10, bh-400, 200, 200);
         playerInfoPane.setBackground(Color.white);
 
         playerInfoText = new JTextArea("Player Information");
@@ -194,14 +203,42 @@ public class GUIView extends JFrame implements View {
         playerInfoPane.add(playerInfoText);
 
         errPanel = new JPanel();
-        errPanel.setBounds(bw+10, bh-800, 200, 400);
-        errPanel.setBackground(Color.white);
+        errPanel.setBounds(bw+10, bh-600, 200, 30);
+        errPanel.setBackground(new Color(1.0f, 0.5f, 0.5f));
+        errPanel.setVisible(false);
 
-        errText = new JTextArea("Error");
-        errText.setEditable(false);
-        errText.setTabSize(2);
-        errText.setVisible(false);
+        errText = new JLabel();
+        errText.setBounds(0, 0, 200, 30);
 
+        errPanel.add(errText);
+
+        turnIcon = new JLabel();
+        turnIcon.setOpaque(true);
+        turnIcon.setBounds(bw + 80, bh - 260, 40, 40);
+
+        dicePanel = new JPanel();
+        dicePanel.setBounds(bw+10, bh-530, 200, 120);
+        dicePanel.setBackground(Color.white);
+        dicePanel.setVisible(true);
+
+        rollDice = new JLabel[6];
+
+        for (int i = 0; i < 6; i++) {
+            JLabel j = rollDice[i] = new JLabel();
+            dicePanel.add(j);
+            j.setBounds(20 + 60 * (i % 3), 20 + 60 * (i / 3), 40, 40);
+            System.out.print(20 + 60 * (i % 3) + " ");
+            System.out.println(20 + 60 * (i / 3));
+            j.setVisible(false);
+        }
+
+        actStatePanel = new JPanel();
+        actStatePanel.setBounds(bw+10, bh-570, 200, 30);
+        actStatePanel.setVisible(false);
+
+        actState = new JLabel();
+
+        actStatePanel.add(actState);
 
         /* Create buttons */
 
@@ -213,7 +250,7 @@ public class GUIView extends JFrame implements View {
 
         // right column
         bMove = createButton("MOVE", bw + 120, 30, 100, 20);
-        bRole = createButton("ROLE", bw + 120, 90, 100, 20);
+        bRole = createButton("TAKE ROLE", bw + 120, 90, 100, 20);
         bUpgrade = createButton("UPGRADE", bw + 120, 150, 100, 20);
 
         // Combo Buttons
@@ -245,6 +282,7 @@ public class GUIView extends JFrame implements View {
 
         /* Add to layered pane */
         lPane.add(playerInfoPane, 2);
+        lPane.add(errPanel, 2);
 
         lPane.add(bAct, 2);
         lPane.add(bPass, 2);
@@ -259,6 +297,12 @@ public class GUIView extends JFrame implements View {
         lPane.add(cbRole, 2);
         lPane.add(cbUpgradeRank, 2);
         lPane.add(cbUpgradeType, 2);
+
+        lPane.add(turnIcon, 2);
+
+        lPane.add(dicePanel, 2);
+
+        lPane.add(actStatePanel, 2);
     }
 
     public InitInfo getPlayerInfo() {
@@ -351,6 +395,7 @@ public class GUIView extends JFrame implements View {
             label.setOpaque(true);
             lPane.add(label, 2);
         }
+        turnIcon.setIcon(activePlayer.getLabel().getIcon());
     }
 
 
@@ -387,6 +432,12 @@ public class GUIView extends JFrame implements View {
     public void displayEndGame(Player[] players, int[] scores, String[] winners, int winningScore) { }
     public void displayPassTurn(Player player) {
         System.out.println("Turn: " +colorArray[ctrl.mod.getTurn()]);
+        turnIcon.setIcon(player.getLabel().getIcon());
+        errPanel.setVisible(false);
+        for (int i = 0; i < 6; i++) {
+            rollDice[i].setVisible(false);
+        }
+        actStatePanel.setVisible(false);
     }
 
     public void displayStartDay(ArrayList<Room> rooms) {
@@ -410,7 +461,14 @@ public class GUIView extends JFrame implements View {
         }
     }
 
-    public void displayDiceRolls(int... diceRolled) { } // NOTE: only view method called outside of takeTurn()
+    public void displayDiceRolls(int... diceRolled) {
+        for (int i = 0; i < diceRolled.length; i++) {
+            JLabel j = rollDice[i];
+            j.setVisible(true);
+            j.setIcon(new ImageIcon(dicePath + "w" + diceRolled[i] + ".png"));
+        }
+        dicePanel.setVisible(true);
+    } // NOTE: only view method called outside of takeTurn()
 
     public void displayTakeRole(Role role) {
         Player p = ctrl.mod.getCurrentPlayer();
@@ -559,12 +617,20 @@ public class GUIView extends JFrame implements View {
     public void displayAct(boolean success) {
         SoundStage ss = (SoundStage)ctrl.mod.getCurrentPlayer().getRoom();
 
+        actStatePanel.setVisible(true);
         if (success) {
             ss.shotLabels.get(ss.getShotMarkers()).setVisible(false);;
             if (ss.getShotMarkers() == 0) {
-                ss.getLabel().setOpaque(false);
+                ss.getLabel().setVisible(false);
             }
+            
+            actStatePanel.setBackground(Color.green);
+            actState.setText("You succeeded at acting");
+        } else {
+            actStatePanel.setBackground(Color.red);
+            actState.setText("You failed at acting");
         }
+
         errPanel.setVisible(false);
     }
 
