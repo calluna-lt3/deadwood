@@ -509,7 +509,7 @@ public class GUIView extends JFrame implements View {
 
                 String imgName = ss.getCard().getImg();
                 ss.getCardLabel().setIcon(new ImageIcon(cardPath + imgName));
-                ss.getCardLabel().setOpaque(true);
+                ss.getCardLabel().setVisible(true);
                 lPane.add(ss.getCardLabel(), 0);
 
                 ss.getCardNotVisibleLabel().setVisible(true);
@@ -546,6 +546,7 @@ public class GUIView extends JFrame implements View {
 
         label.setBounds(x, y, 40, 40);
         lPane.add(label, 0);
+
         errPanel.setVisible(false);
     }
 
@@ -654,7 +655,9 @@ public class GUIView extends JFrame implements View {
 
 
     public void displayRehearse(Player player) {
-        displayWho(player);
+        actState.setText("You rehearsed");
+        actStatePanel.setBackground(Color.white);
+        actStatePanel.setVisible(true);
         errPanel.setVisible(false);
     }
 
@@ -716,7 +719,7 @@ public class GUIView extends JFrame implements View {
                 int offset = 1;
                 // this loop skips current player for some reason, moved manually above
                 for (Player p : ctrl.mod.getPlayers()) {
-                    if (p.getRole() != null && currPlayer.getRoom().getName().equals(p.getRoom().getName())) {
+                    if (currPlayer.getRoom().getName().equals(p.getRoom().getName())) {
                         p.getLabel().setBounds(defaultX + (20 * offset), defaultY, 40, 40);
                         offset++;
                     }

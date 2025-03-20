@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -184,6 +183,9 @@ public class InputController {
                     p.setMoney(p.getMoney() + p.getRole().getRank());
                 }
             }
+
+            for (Player p : extraPlayers) { p.setRole(null); }
+            for (Player p : starringPlayers) { p.setRole(null); }
 
             currPlayer.setRole(null);
             currPlayer.setRehearsalTokens(0);
@@ -426,11 +428,6 @@ public class InputController {
             Player p = mod.getCurrentPlayer();
             v.displayPassTurn(p);
 
-            Room r = mod.getCurrentPlayer().getRoom();
-            if (r instanceof SoundStage) v.displayRoles((SoundStage)r);
-            else v.displayRoles(Enums.errno.BAD_ROOM);
-            v.displayWho(p);
-            v.displayRooms(r);
 
             if (mod.getCardCount() < 2) {
                 mod.setDay(mod.getDay() + 1);
@@ -440,6 +437,12 @@ public class InputController {
                 }
                 startDay();
             }
+
+            Room r = mod.getCurrentPlayer().getRoom();
+            if (r instanceof SoundStage) v.displayRoles((SoundStage)r);
+            else v.displayRoles(Enums.errno.BAD_ROOM);
+            v.displayWho(p);
+            v.displayRooms(r);
         }
     }
 
