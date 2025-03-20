@@ -521,6 +521,7 @@ public class InputController {
         }
 
         assignScenes();
+        mod.resetCardCount();
 
         if (v instanceof GUIView) {
             // ORDER MATTERS HERE

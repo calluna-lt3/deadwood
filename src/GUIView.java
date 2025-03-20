@@ -516,6 +516,12 @@ public class GUIView extends JFrame implements View {
                 lPane.add(ss.getCardNotVisibleLabel(), 0); // so it shows over
             }
         }
+
+        if (!firstDay) {
+            actState.setText("The day has ended!");
+            actStatePanel.setBackground(customGreen);
+            actStatePanel.setVisible(true);
+        }
     }
 
 
