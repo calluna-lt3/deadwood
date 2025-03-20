@@ -2,20 +2,19 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import java.awt.*;
-
 import javax.swing.*;
 import java.awt.event.*;
 
 
 
 public class GUIView extends JFrame implements View {
-    InputController ctrl;
     private static final String cardPath = "./data/card/";
     private static final String dicePath = "./data/dice/";
     private static final char[] colorArray = {'b', 'c', 'g', 'o', 'p', 'r', 'v', 'y'};
+    private static final Color customRed = new Color(1.0f, 0.5f, 0.5f);
+    private static final Color customGreen = new Color(0.5f, 1.0f, 0.5f);
+    InputController ctrl;
     private static boolean firstDay = true;
-    private static Color customRed = new Color(1.0f, 0.5f, 0.5f);
-    private static Color customGreen = new Color(0.5f, 1.0f, 0.5f);
 
     public void endFirstDay() {
         firstDay = false;
@@ -26,8 +25,13 @@ public class GUIView extends JFrame implements View {
     JLabel boardlabel;
     JLabel cardlabel;
     JLabel playerlabel;
+
+
+
+    // Labels
     JLabel mLabel;
     JLabel dLabel;
+    JLabel iLabel;
 
 
     /* Buttons */
@@ -51,6 +55,15 @@ public class GUIView extends JFrame implements View {
     // Player information box
     JPanel playerInfoPane;
     JTextArea playerInfoText;
+
+    JLabel piPlayer;
+    JLabel piRank;
+    JLabel piMoney;
+    JLabel piCredits;
+    JLabel piTokens;
+    JLabel piJob;
+    JLabel piLine;
+
 
     // Error display box
     JPanel errPanel;
@@ -79,26 +92,6 @@ public class GUIView extends JFrame implements View {
         this.ctrl = ctrl;
     }
 
-
-    /* immediate:
-     *  help, act, rehearse, pass
-     *
-     * irrelevant: (can be repurposed)
-     *  who: player info
-     *  loc: update player locations
-     *  roles: update roles combo box
-     *  rooms: update rooms combo box
-     *
-     * needs other input:
-     *  move: dropdown
-     *  takerole: dropdown
-     *  upgrade: popup
-     *
-     * new methods:
-     * updateboard: change cards and shot markers
-     *
-     * errors:
-     */
 
     class boardMouseListener implements MouseListener {
         public void mouseClicked(MouseEvent e) {
@@ -147,15 +140,7 @@ public class GUIView extends JFrame implements View {
     }
 
 
-    /* Layers
-     *  0: board
-     *  1: cards
-     *  2: buttons, players
-     *  3: alerts
-    */
     public void displayInit() {
-
-        // Set the exit option for the JFrame
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         // Create the JLayeredPane to hold the display, cards, dice and buttons
@@ -179,27 +164,60 @@ public class GUIView extends JFrame implements View {
         // GUI size, for some reason had to do this manually as bw/bh was not real bh/bw
         setSize(bw + 240, bh+25);
 
-        // Create the Menu for action buttons
+        // Labels (manually centered bc panels wouldnt do it)
         mLabel = new JLabel("MENU");
-        mLabel.setBounds(bw+95, 0, 210, 20);
+        mLabel.setBounds(bw+95, 0, 210, 30);
 
         dLabel = new JLabel("DICE");
-        dLabel.setBounds(bw+95, bh-550, 210, 20);
+        dLabel.setBounds(bw+95, bh-550, 210, 30);
 
-        lPane.add(mLabel,2);
-        lPane.add(dLabel,2);
+        iLabel = new JLabel("PLAYER INFO");
+        iLabel.setBounds(bw+75, bh-380, 210, 30);
 
 
         /* Text field */
         playerInfoPane = new JPanel();
-        playerInfoPane.setBounds(bw+10, bh-400, 210, 200);
+        playerInfoPane.setLayout(new GridLayout(7, 1, 0, 0));
+        playerInfoPane.setBounds(bw+10, bh-350, 210, 200);
         playerInfoPane.setBackground(Color.white);
 
         playerInfoText = new JTextArea("Player Information");
         playerInfoText.setEditable(false);
         playerInfoText.setTabSize(2);
 
-        playerInfoPane.add(playerInfoText);
+        //playerInfoPane.add(playerInfoText);
+        piPlayer = new JLabel();
+        piRank = new JLabel();
+        piMoney = new JLabel();
+        piCredits = new JLabel();
+        piTokens = new JLabel();
+        piJob = new JLabel();
+        piLine = new JLabel();
+
+        piPlayer.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        piRank.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        piMoney.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        piCredits.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        piTokens.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        piJob.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        piLine.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+
+        piPlayer.setBounds(0, 0, 210, 20);
+        piRank.setBounds(0, 0, 210, 20);
+        piMoney.setBounds(0, 0, 210, 20);
+        piCredits.setBounds(0, 0, 210, 20);
+        piTokens.setBounds(0, 0, 210, 20);
+        piJob.setBounds(0, 0, 210, 20);
+        piLine.setBounds(0, 0, 210, 20);
+
+        playerInfoPane.add(piPlayer);
+        playerInfoPane.add(piRank);
+        playerInfoPane.add(piMoney);
+        playerInfoPane.add(piCredits);
+        playerInfoPane.add(piTokens);
+        playerInfoPane.add(piJob);
+        playerInfoPane.add(piLine);
+
 
         errPanel = new JPanel();
         errPanel.setBounds(bw+10, bh-620, 210, 30);
@@ -217,29 +235,26 @@ public class GUIView extends JFrame implements View {
 
         dicePanel = new JPanel();
         dicePanel.setLayout(new GridLayout(2, 3, 0, 20));
-        dicePanel.setBounds(bw+10, bh-530, 210, 120);
+        dicePanel.setBounds(bw+10, bh-520, 210, 120);
         dicePanel.setBackground(Color.white);
         dicePanel.setVisible(true);
-
 
         rollDice = new JLabel[6];
         for (int i = 0; i < 6; i++) {
             JLabel j = rollDice[i] = new JLabel();
             dicePanel.add(j);
-            j.setBounds(20 + 60 * (i % 3), 20 + 60 * (i / 3), 60, 40);
+            j.setBorder(BorderFactory.createEmptyBorder(0, 15, 0, 0));
+            j.setBounds(60 * (i % 3), 20 + 60 * (i / 3), 60, 40);
             j.setVisible(false);
         }
 
         actStatePanel = new JPanel();
         actStatePanel.setBounds(bw+10, bh-590, 210, 30);
         actStatePanel.setVisible(false);
-
         actState = new JLabel();
-
         actStatePanel.add(actState);
 
         /* Create buttons */
-
         // left column
         bAct = createButton("ACT", bw + 10, 30, 100, 20);
         bRehearse = createButton("REHEARSE", bw + 10, 60, 100, 20);
@@ -279,28 +294,33 @@ public class GUIView extends JFrame implements View {
 
 
         /* Add to layered pane */
-        lPane.add(playerInfoPane, 2);
-        lPane.add(errPanel, 2);
-
+        // Buttons
         lPane.add(bAct, 2);
         lPane.add(bPass, 2);
         lPane.add(bRole, 2);
         lPane.add(bHelp, 2);
         lPane.add(bUpgrade, 2);
-
         lPane.add(bRehearse, 2);
         lPane.add(bMove, 2);
 
+        // Combo boxes
         lPane.add(cbMove, 2);
         lPane.add(cbRole, 2);
         lPane.add(cbUpgradeRank, 2);
         lPane.add(cbUpgradeType, 2);
 
+        // Labels
+        lPane.add(mLabel, 2);
+        lPane.add(dLabel, 2);
+        lPane.add(iLabel, 2);
+
+        // Misc sidebar elements
         lPane.add(turnIcon, 2);
-
         lPane.add(dicePanel, 2);
-
         lPane.add(actStatePanel, 2);
+
+        lPane.add(playerInfoPane, 2);
+        lPane.add(errPanel, 2);
     }
 
 
@@ -368,6 +388,19 @@ public class GUIView extends JFrame implements View {
         String tokens = Integer.toString(player.getRehearsalTokens());
         String role = (player.getRole() != null) ? player.getRole().getName() : "none";
         String line = (player.getRole() != null) ? player.getRole().getLine() : "";
+
+
+
+        piPlayer.setText("Player: " + name);
+        piRank.setText("Rank: " + rank);
+        piMoney.setText("Money: " + money);
+        piCredits.setText("Credits: " + credits);
+        piTokens.setText("Tokens: " + tokens);
+        piJob.setText("Job: " + role);
+        if (!"".equals(line)) {
+            piLine.setText("Line: " + line);
+        }
+
 
         playerInfoText.setText("Active player: " + name
             + "\n\tRank: " + rank
@@ -507,7 +540,7 @@ public class GUIView extends JFrame implements View {
             j.setIcon(new ImageIcon(dicePath + "w" + diceRolled[i] + ".png"));
         }
         dicePanel.setVisible(true);
-    } // NOTE: only view method called outside of takeTurn()
+    }
 
 
     public void displayTakeRole(Role role) {
@@ -526,6 +559,7 @@ public class GUIView extends JFrame implements View {
         }
 
         label.setBounds(x, y, 40, 40);
+        lPane.add(label, 0);
         errPanel.setVisible(false);
     }
 
@@ -681,10 +715,14 @@ public class GUIView extends JFrame implements View {
 
         actStatePanel.setVisible(true);
         if (success) {
-            ss.getShotLabels().get(ss.getShotMarkers()).setVisible(false);;
+            ss.getShotLabels().get(ss.getShotMarkers()).setVisible(false);
+
+            // Scene wrapped
             if (ss.getShotMarkers() == 0) {
+                // Get rid of card label
                 ss.getCardLabel().setVisible(false);
 
+                // Set players to default locations
                 int defaultX = currPlayer.getRoom().getDefaultPos().x();
                 int defaultY = currPlayer.getRoom().getDefaultPos().y();
                 currPlayer.getLabel().setBounds(defaultX, defaultY, 40, 40);
@@ -697,10 +735,13 @@ public class GUIView extends JFrame implements View {
                         offset++;
                     }
                 }
+                actState.setText("Scene wrapped, bonuses paid");
+            } else {
+                actState.setText("You succeeded at acting");
             }
 
             actStatePanel.setBackground(customGreen);
-            actState.setText("You succeeded at acting");
+
         } else {
             actStatePanel.setBackground(customRed);
             actState.setText("You failed at acting");

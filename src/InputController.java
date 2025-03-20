@@ -240,8 +240,7 @@ public class InputController {
 
         switch (action) {
             case HELP:
-                startDay();
-                //v.displayHelp();
+                v.displayHelp();
                 break;
             case WHO:
                 v.displayWho(mod.getCurrentPlayer());
@@ -472,7 +471,7 @@ public class InputController {
 
         mod.setTurn(random.nextInt(info.count()));
 
-        int startCredits = 100;
+        int startCredits = 1;
         int startRank = 1;
         switch (mod.getPlayerCount()) {
             case 2: case 3:
