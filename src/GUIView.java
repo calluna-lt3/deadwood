@@ -54,7 +54,6 @@ public class GUIView extends JFrame implements View {
 
     // Player information box
     JPanel playerInfoPane;
-    JTextArea playerInfoText;
 
     JLabel piPlayer;
     JLabel piRank;
@@ -165,8 +164,8 @@ public class GUIView extends JFrame implements View {
         setSize(bw + 240, bh+25);
 
         // Labels (manually centered bc panels wouldnt do it)
-        mLabel = new JLabel("MENU");
-        mLabel.setBounds(bw+95, 0, 210, 30);
+        mLabel = new JLabel("ACTIONS");
+        mLabel.setBounds(bw+90, 0, 210, 30);
 
         dLabel = new JLabel("DICE");
         dLabel.setBounds(bw+95, bh-550, 210, 30);
@@ -177,15 +176,10 @@ public class GUIView extends JFrame implements View {
 
         /* Text field */
         playerInfoPane = new JPanel();
-        playerInfoPane.setLayout(new GridLayout(7, 1, 0, 0));
-        playerInfoPane.setBounds(bw+10, bh-350, 210, 200);
+        playerInfoPane.setLayout(new GridLayout(13, 1, 0, 0));
+        playerInfoPane.setBounds(bw+10, bh-350, 210, 340);
         playerInfoPane.setBackground(Color.white);
 
-        playerInfoText = new JTextArea("Player Information");
-        playerInfoText.setEditable(false);
-        playerInfoText.setTabSize(2);
-
-        //playerInfoPane.add(playerInfoText);
         piPlayer = new JLabel();
         piRank = new JLabel();
         piMoney = new JLabel();
@@ -231,7 +225,7 @@ public class GUIView extends JFrame implements View {
 
         turnIcon = new JLabel();
         turnIcon.setOpaque(true);
-        turnIcon.setBounds(bw + 95, bh - 260, 40, 40);
+        turnIcon.setBounds(bw + 95, bh - 120, 40, 40);
 
         dicePanel = new JPanel();
         dicePanel.setLayout(new GridLayout(2, 3, 0, 20));
@@ -400,15 +394,6 @@ public class GUIView extends JFrame implements View {
         if (!"".equals(line)) {
             piLine.setText("Line: " + line);
         }
-
-
-        playerInfoText.setText("Active player: " + name
-            + "\n\tRank: " + rank
-            + "\n\tMoney: " + money
-            + "\n\tCredits: " + credits
-            + "\n\tTokens: " + tokens
-            + "\n\tJob: " + role
-            + "\n\tLine: " + line);
     }
 
 
@@ -434,6 +419,7 @@ public class GUIView extends JFrame implements View {
             offset += 20;
         }
         turnIcon.setIcon(activePlayer.getLabel().getIcon());
+        lPane.add(turnIcon, 2);
     }
 
 
