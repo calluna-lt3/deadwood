@@ -70,7 +70,6 @@ public class InputController {
         }
 
         // Check if room index is out of bounds
-        System.out.println(currPlayer);
         if (room < 1 || room > currPlayer.getRoom().getAdjacentCount()) {
             return -2;
         }
@@ -241,7 +240,8 @@ public class InputController {
 
         switch (action) {
             case HELP:
-                v.displayHelp();
+                startDay();
+                //v.displayHelp();
                 break;
             case WHO:
                 v.displayWho(mod.getCurrentPlayer());

@@ -10,7 +10,8 @@ public class SoundStage extends Room {
     ArrayList<DisplayInfo> takeInfo = new ArrayList<DisplayInfo>();
     ArrayList<JLabel> shotLabels = new ArrayList<JLabel>();
     DisplayInfo dCardInfo;
-    JLabel label = null;
+    JLabel cardLabel = null;
+    JLabel cardNotVisibleLabel = null;
 
 
     // ;;;;;;;;;
@@ -38,16 +39,28 @@ public class SoundStage extends Room {
         this.card = c;
     }
 
-    public void setLabel(JLabel l) {
-        label = l;
+    public void setCardLabel(JLabel l) {
+        cardLabel = l;
     }
 
-    public JLabel getLabel() {
-        return label;
+    public JLabel getCardLabel() {
+        return cardLabel;
+    }
+
+    public void setCardNotVisibleLabel(JLabel label) {
+        cardNotVisibleLabel = label;
+    }
+
+    public JLabel getCardNotVisibleLabel() {
+        return cardNotVisibleLabel;
     }
 
     public DisplayInfo getCardDisplayInfo() {
         return dCardInfo;
+    }
+
+    public ArrayList<JLabel> getShotLabels() {
+         return shotLabels;
     }
 
     // returns true if scene is finished, false if not
@@ -64,14 +77,12 @@ public class SoundStage extends Room {
 
         if (role > roles.size()) {
             if (role - roles.size() > card.getRoleCount()) {
-                // System.out.println("Requested role out of bounds");
                 return null;
             }
 
             return card.getRoles().get(role - roles.size() - 1);
         } else {
             if (role < 1) {
-                // System.out.println("Requested role out of bounds");
                 return null;
             }
 

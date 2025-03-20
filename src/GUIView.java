@@ -20,16 +20,13 @@ public class GUIView extends JFrame implements View {
     }
 
 
-    // default player locations for each room
-    // h, w => const
-    // x, y
-
-
     // JLabels
     JLabel boardlabel;
     JLabel cardlabel;
     JLabel playerlabel;
     JLabel mLabel;
+    JLabel dLabel;
+
 
     /* Buttons */
     // No extra input
@@ -177,18 +174,23 @@ public class GUIView extends JFrame implements View {
         // Add the board to the lowest layer
         lPane.add(boardlabel, 0);
 
-        // Set the size of the GUI
-        setSize(bw + 200, bh);
+        // GUI size, for some reason had to do this manually as bw/bh was not real bh/bw
+        setSize(bw + 240, bh+25);
 
         // Create the Menu for action buttons
         mLabel = new JLabel("MENU");
-        mLabel.setBounds(bw+40, 0, 100, 20);
+        mLabel.setBounds(bw+95, 0, 210, 20);
+
+        dLabel = new JLabel("DICE");
+        dLabel.setBounds(bw+95, bh-550, 210, 20);
+
         lPane.add(mLabel,2);
+        lPane.add(dLabel,2);
 
 
         /* Text field */
         playerInfoPane = new JPanel();
-        playerInfoPane.setBounds(bw+10, bh-400, 200, 200);
+        playerInfoPane.setBounds(bw+10, bh-400, 210, 200);
         playerInfoPane.setBackground(Color.white);
 
         playerInfoText = new JTextArea("Player Information");
@@ -198,22 +200,22 @@ public class GUIView extends JFrame implements View {
         playerInfoPane.add(playerInfoText);
 
         errPanel = new JPanel();
-        errPanel.setBounds(bw+10, bh-600, 200, 30);
+        errPanel.setBounds(bw+10, bh-620, 210, 30);
         errPanel.setBackground(new Color(1.0f, 0.5f, 0.5f));
         errPanel.setVisible(false);
 
         errText = new JLabel();
-        errText.setBounds(0, 0, 200, 30);
+        errText.setBounds(0, 0, 210, 30);
 
         errPanel.add(errText);
 
         turnIcon = new JLabel();
         turnIcon.setOpaque(true);
-        turnIcon.setBounds(bw + 80, bh - 260, 40, 40);
+        turnIcon.setBounds(bw + 95, bh - 260, 40, 40);
 
         dicePanel = new JPanel();
         dicePanel.setLayout(new GridLayout(2, 3, 0, 20));
-        dicePanel.setBounds(bw+10, bh-530, 200, 120);
+        dicePanel.setBounds(bw+10, bh-530, 210, 120);
         dicePanel.setBackground(Color.white);
         dicePanel.setVisible(true);
 
@@ -227,7 +229,7 @@ public class GUIView extends JFrame implements View {
         }
 
         actStatePanel = new JPanel();
-        actStatePanel.setBounds(bw+10, bh-570, 200, 30);
+        actStatePanel.setBounds(bw+10, bh-590, 210, 30);
         actStatePanel.setVisible(false);
 
         actState = new JLabel();
@@ -472,16 +474,25 @@ public class GUIView extends JFrame implements View {
                 SoundStage ss = (SoundStage)r;
                 initShotMarkers(ss);
                 if (firstDay) {
-                    JLabel label = new JLabel();
                     DisplayInfo dInfo = ss.getCardDisplayInfo();
-                    label.setBounds(dInfo.x(), dInfo.y(), dInfo.w(), dInfo.h());
-                    ss.setLabel(label);
+
+                    JLabel cardLabel = new JLabel();
+                    cardLabel.setBounds(dInfo.x(), dInfo.y(), dInfo.w(), dInfo.h());
+                    ss.setCardLabel(cardLabel);
+
+                    JLabel cardNotVisibleLabel = new JLabel();
+                    cardNotVisibleLabel.setBounds(dInfo.x(), dInfo.y(), dInfo.w(), dInfo.h());
+                    cardNotVisibleLabel.setIcon(new ImageIcon("./data/card/00.png"));
+                    ss.setCardNotVisibleLabel(cardNotVisibleLabel);
                 }
 
                 String imgName = ss.getCard().getImg();
-                ss.getLabel().setIcon(new ImageIcon(cardPath + imgName));
-                ss.getLabel().setOpaque(true);
-                lPane.add(ss.getLabel(), 0);
+                ss.getCardLabel().setIcon(new ImageIcon(cardPath + imgName));
+                ss.getCardLabel().setOpaque(true);
+                lPane.add(ss.getCardLabel(), 0);
+
+                ss.getCardNotVisibleLabel().setVisible(true);
+                lPane.add(ss.getCardNotVisibleLabel(), 0); // so it shows over
             }
         }
     }
@@ -543,6 +554,10 @@ public class GUIView extends JFrame implements View {
         int y = p.getRoom().getDefaultPos().y();
         label.setBounds(x, y, 40, 40);
         errPanel.setVisible(false);
+
+        if (room instanceof SoundStage) {
+            ((SoundStage)(room)).getCardNotVisibleLabel().setVisible(false);
+        }
     }
 
 
@@ -637,12 +652,12 @@ public class GUIView extends JFrame implements View {
                 JLabel label = new JLabel();
                 label.setIcon(new ImageIcon("./data/shot.png"));
                 label.setBounds(di.x(), di.y(), di.w(), di.h());
-                ss.shotLabels.add(label);
+                ss.getShotLabels().add(label);
                 lPane.add(label, 0);
             }
         }
 
-        for (JLabel label : ss.shotLabels) {
+        for (JLabel label : ss.getShotLabels()) {
             label.setVisible(true);
         }
     }
@@ -653,9 +668,9 @@ public class GUIView extends JFrame implements View {
 
         actStatePanel.setVisible(true);
         if (success) {
-            ss.shotLabels.get(ss.getShotMarkers()).setVisible(false);;
+            ss.getShotLabels().get(ss.getShotMarkers()).setVisible(false);;
             if (ss.getShotMarkers() == 0) {
-                ss.getLabel().setVisible(false);
+                ss.getCardLabel().setVisible(false);
             }
 
             actStatePanel.setBackground(Color.green);
