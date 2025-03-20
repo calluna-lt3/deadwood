@@ -432,7 +432,7 @@ public class InputController {
             if (mod.getCardCount() < 2) {
                 mod.setDay(mod.getDay() + 1);
 
-                if (mod.getDay() > mod.getLastDay()) {
+                if (mod.getDay() == mod.getLastDay()) {
                     endGame();
                 }
                 startDay();
