@@ -160,7 +160,7 @@ public class InputController {
 
                     // Descending order, >1 element in list
                     int i = 0;
-                    for (; starringPlayers.get(i).getRole().getRank() > p.getRole().getRank(); i++);
+                    for (; i < starringPlayers.size() && starringPlayers.get(i).getRole().getRank() > p.getRole().getRank(); i++);
                     starringPlayers.add(i, p);
                 }
             }
