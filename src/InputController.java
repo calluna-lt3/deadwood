@@ -367,10 +367,12 @@ public class InputController {
                 switch (result) {
                     case 0:
                         v.displayAct(true);
+                        v.displayWho(mod.getCurrentPlayer());
                         canWork = false;
                         break;
                     case 1:
                         v.displayAct(false);
+                        v.displayWho(mod.getCurrentPlayer());
                         canWork = false;
                         break;
                     case -1:

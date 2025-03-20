@@ -14,6 +14,8 @@ public class GUIView extends JFrame implements View {
     private static final String dicePath = "./data/dice/";
     private static final char[] colorArray = {'b', 'c', 'g', 'o', 'p', 'r', 'v', 'y'};
     private static boolean firstDay = true;
+    private static Color customRed = new Color(1.0f, 0.5f, 0.5f);
+    private static Color customGreen = new Color(0.5f, 1.0f, 0.5f);
 
     public void endFirstDay() {
         firstDay = false;
@@ -201,7 +203,7 @@ public class GUIView extends JFrame implements View {
 
         errPanel = new JPanel();
         errPanel.setBounds(bw+10, bh-620, 210, 30);
-        errPanel.setBackground(new Color(1.0f, 0.5f, 0.5f));
+        errPanel.setBackground(customRed);
         errPanel.setVisible(false);
 
         errText = new JLabel();
@@ -511,8 +513,18 @@ public class GUIView extends JFrame implements View {
     public void displayTakeRole(Role role) {
         Player p = ctrl.mod.getCurrentPlayer();
         JLabel label = p.getLabel();
-        int x = role.getDisplayInfo().x();
-        int y = role.getDisplayInfo().y();
+
+        SoundStage ss = (SoundStage)p.getRoom();
+
+        int x, y;
+        if (role.getStarring()) {
+            x = role.getDisplayInfo().x() + ss.getCardDisplayInfo().x();
+            y = role.getDisplayInfo().y()+ ss.getCardDisplayInfo().y();
+        } else {
+            x = role.getDisplayInfo().x();
+            y = role.getDisplayInfo().y();
+        }
+
         label.setBounds(x, y, 40, 40);
         errPanel.setVisible(false);
     }
@@ -664,19 +676,33 @@ public class GUIView extends JFrame implements View {
 
 
     public void displayAct(boolean success) {
-        SoundStage ss = (SoundStage)ctrl.mod.getCurrentPlayer().getRoom();
+        Player currPlayer = ctrl.mod.getCurrentPlayer();
+        SoundStage ss = (SoundStage)currPlayer.getRoom();
 
         actStatePanel.setVisible(true);
         if (success) {
             ss.getShotLabels().get(ss.getShotMarkers()).setVisible(false);;
             if (ss.getShotMarkers() == 0) {
                 ss.getCardLabel().setVisible(false);
+
+                int defaultX = currPlayer.getRoom().getDefaultPos().x();
+                int defaultY = currPlayer.getRoom().getDefaultPos().y();
+                currPlayer.getLabel().setBounds(defaultX, defaultY, 40, 40);
+
+                int offset = 1;
+                // this loop skips current player for some reason, moved manually above
+                for (Player p : ctrl.mod.getPlayers()) {
+                    if (p.getRole() != null && currPlayer.getRoom().getName().equals(p.getRoom().getName())) {
+                        p.getLabel().setBounds(defaultX + (20 * offset), defaultY, 40, 40);
+                        offset++;
+                    }
+                }
             }
 
-            actStatePanel.setBackground(Color.green);
+            actStatePanel.setBackground(customGreen);
             actState.setText("You succeeded at acting");
         } else {
-            actStatePanel.setBackground(Color.red);
+            actStatePanel.setBackground(customRed);
             actState.setText("You failed at acting");
         }
 
